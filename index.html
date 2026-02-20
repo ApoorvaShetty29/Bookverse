@@ -35,31 +35,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
 .fbook-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:8px;text-align:center;font-family:'Playfair Display',serif;font-size:11px;line-height:1.3;color:var(--text);}
 /* Spotlight glow */
 .fbook.spotlight .fbook-inner{box-shadow:0 0 0 2px #c8a96e,0 0 60px rgba(200,169,110,0.5),8px 12px 50px rgba(0,0,0,0.8)!important;}
-
-/* ── PAGE FAN ANIMATION ── */
-.page-fan{position:absolute;top:4%;right:-2px;height:92%;width:80%;pointer-events:none;transform-origin:left center;perspective:300px;}
-.fan-page{position:absolute;top:0;left:0;width:100%;height:100%;
-  background:linear-gradient(to right,#b8926a 0%,#d4b896 15%,#e8d5b5 40%,#f2e6c8 60%,#ede0c0 80%,#d6c4a0 100%);
-  border-radius:0 3px 3px 0;transform-origin:left center;transform:rotateY(0deg);
-  box-shadow:inset -2px 0 4px rgba(0,0,0,0.15),inset 2px 0 3px rgba(255,255,255,0.3);
-  opacity:0;}
-/* staggered page turns — 8 pages, slow and deliberate */
-.fan-page:nth-child(1){animation:none;}
-.fbook.page-flipping .fan-page:nth-child(1){animation:pageTurn 1.2s ease-in-out 0.00s 1 forwards;}
-.fbook.page-flipping .fan-page:nth-child(2){animation:pageTurn 1.2s ease-in-out 0.55s 1 forwards;}
-.fbook.page-flipping .fan-page:nth-child(3){animation:pageTurn 1.2s ease-in-out 1.10s 1 forwards;}
-.fbook.page-flipping .fan-page:nth-child(4){animation:pageTurn 1.2s ease-in-out 1.65s 1 forwards;}
-.fbook.page-flipping .fan-page:nth-child(5){animation:pageTurn 1.2s ease-in-out 2.20s 1 forwards;}
-.fbook.page-flipping .fan-page:nth-child(6){animation:pageTurn 1.2s ease-in-out 2.75s 1 forwards;}
-.fbook.page-flipping .fan-page:nth-child(7){animation:pageTurn 1.2s ease-in-out 3.30s 1 forwards;}
-.fbook.page-flipping .fan-page:nth-child(8){animation:pageTurn 1.2s ease-in-out 3.85s 1 forwards;}
-@keyframes pageTurn{
-  0%  {opacity:1; transform:rotateY(0deg);}
-  15% {opacity:1; transform:rotateY(-18deg);}
-  50% {opacity:1; transform:rotateY(-70deg);}
-  80% {opacity:0.6;transform:rotateY(-105deg);}
-  100%{opacity:0; transform:rotateY(-135deg);}
-}
 @keyframes drift{0%{transform:translateY(0px) rotate(var(--r0));}100%{transform:translateY(-22px) rotate(var(--r1));}}
 /* FAB */
 .fab{position:fixed;bottom:32px;right:32px;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#0a0a0f;font-size:28px;font-weight:300;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(200,169,110,0.4);z-index:50;transition:all 0.2s;line-height:1;}
@@ -454,44 +429,35 @@ function starsHtml(v,sz=12){return[1,2,3,4,5].map(s=>`<span style="color:${s<=v?
 // ════════════════════════════════════
 //  PAGE FLIP SOUND (Web Audio API)
 // ════════════════════════════════════
+// ════════════════════════════════════
+//  PAGE TURN SOUND — plays once when entering library
+// ════════════════════════════════════
 let audioCtx=null;
 function getAudioCtx(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
 
-function playPageFlipSound(){
+function playPageTurnSound(){
   try{
     const ctx=getAudioCtx();
-    // longer rustling sound to match slow flip
-    const dur=0.55;
+    const dur=0.6;
     const buf=ctx.createBuffer(1,ctx.sampleRate*dur,ctx.sampleRate);
     const d=buf.getChannelData(0);
     for(let i=0;i<d.length;i++){
       const t=i/ctx.sampleRate;
-      // slow attack, slow decay — papery swish
-      const env=Math.pow(t/0.08,2)*Math.exp(-t*9)*(t<0.08?1:1);
-      d[i]=(Math.random()*2-1)*env*1.1;
+      // soft papery swish: quick rise, slow fade
+      const env=Math.exp(-t*7)*(1-Math.exp(-t*60));
+      d[i]=(Math.random()*2-1)*env;
     }
     const src=ctx.createBufferSource(); src.buffer=buf;
-    const lpf=ctx.createBiquadFilter(); lpf.type='lowpass'; lpf.frequency.value=4200; lpf.Q.value=0.8;
-    const hpf=ctx.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=600; hpf.Q.value=0.6;
-    const gain=ctx.createGain(); gain.gain.value=0.6;
+    const lpf=ctx.createBiquadFilter(); lpf.type='lowpass';  lpf.frequency.value=4500;
+    const hpf=ctx.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=500;
+    const gain=ctx.createGain(); gain.gain.value=0.65;
     src.connect(hpf); hpf.connect(lpf); lpf.connect(gain); gain.connect(ctx.destination);
     src.start();
   }catch(e){}
 }
 
-// Play one sound per page, timed to exactly when each page starts turning
-// Page n starts at n * 0.55s
-function schedulePageSounds(startOffsetMs){
-  const timers=[];
-  for(let i=0;i<8;i++){
-    const t=startOffsetMs + i*550; // matches CSS animation-delay of i*0.55s
-    timers.push(setTimeout(playPageFlipSound, t));
-  }
-  return timers;
-}
-
 // ════════════════════════════════════
-//  LANDING — floating books + effects
+//  LANDING — floating books
 // ════════════════════════════════════
 let landingBooks=[], landingRAF=null;
 
@@ -500,12 +466,12 @@ function renderLanding(){
   canvas.innerHTML=''; landingBooks=[];
   if(landingRAF){cancelAnimationFrame(landingRAF);landingRAF=null;}
   const W=window.innerWidth, H=window.innerHeight;
-  const all=[...books];
-  while(all.length<10) all.push(...books);
-  const count=Math.min(14,all.length);
+
+  // Show up to 14 slots; cycle through books WITHOUT bulk-duplicating
+  const count=Math.min(14, Math.max(books.length, 5));
 
   for(let i=0;i<count;i++){
-    const b=all[i];
+    const b=books[i % books.length];   // cycle evenly — no whole-array push
     const w=70+(i%4)*20, h=Math.round(w*1.55);
     const x=Math.random()*(W-w), y=Math.random()*(H-h);
     const vx=(Math.random()-0.5)*0.3, vy=(Math.random()-0.5)*0.3;
@@ -538,22 +504,10 @@ function renderLanding(){
       fb.textContent=b.title; inner.appendChild(fb);
     }
 
-    // Page fan — 8 rustic brown pages
-    const fan=document.createElement('div');
-    fan.className='page-fan';
-    for(let p=0;p<8;p++){
-      const page=document.createElement('div');
-      page.className='fan-page';
-      page.style.cssText=`top:${1+p*0.5}%;height:${98-p}%;opacity:0;`;
-      fan.appendChild(page);
-    }
-    inner.appendChild(fan);
     el.appendChild(inner);
     canvas.appendChild(el);
 
-    const obj={el,inner,fan,x,y,vx,vy,w,h,r,book:b,
-               hoverTimer:null,flipTimer:null,soundTimers:[],
-               pinnedVx:vx,pinnedVy:vy,pinned:false};
+    const obj={el,inner,x,y,vx,vy,w,h,r,book:b,pinnedVx:vx,pinnedVy:vy,pinned:false};
     landingBooks.push(obj);
     applyTransform(obj);
 
@@ -582,13 +536,9 @@ function animateLanding(){
 
 function startHover(i){
   const obj=landingBooks[i]; if(!obj) return;
-  obj.pinned=true;
-  obj.vx=0; obj.vy=0;
-  // spotlight glow immediately
+  obj.pinned=true; obj.vx=0; obj.vy=0;
   obj.inner.style.boxShadow='0 0 0 2px #c8a96e,0 0 60px rgba(200,169,110,0.55),8px 12px 50px rgba(0,0,0,0.85)';
   obj.el.style.zIndex='10';
-  // wait 4 seconds, THEN start flipping
-  obj.hoverTimer=setTimeout(()=>{ if(obj.pinned) startPageFan(i); }, 4000);
 }
 
 function endHover(i){
@@ -597,42 +547,13 @@ function endHover(i){
   obj.inner.style.boxShadow='';
   obj.el.style.zIndex='';
   obj.vx=obj.pinnedVx; obj.vy=obj.pinnedVy;
-  // cancel everything
-  if(obj.hoverTimer){clearTimeout(obj.hoverTimer);obj.hoverTimer=null;}
-  if(obj.flipTimer){clearTimeout(obj.flipTimer);obj.flipTimer=null;}
-  (obj.soundTimers||[]).forEach(t=>clearTimeout(t));
-  obj.soundTimers=[];
-  stopPageFan(i);
-}
-
-function startPageFan(i){
-  const obj=landingBooks[i]; if(!obj||!obj.pinned) return;
-  // trigger CSS flip
-  obj.el.classList.add('page-flipping');
-  // schedule one sound per page, exactly when each page starts turning
-  obj.soundTimers=schedulePageSounds(0);
-  // total flip duration = last page delay (3.85s) + page anim duration (1.2s) = ~5.1s
-  // wait that long, then reset and replay
-  obj.flipTimer=setTimeout(()=>{
-    obj.el.classList.remove('page-flipping');
-    obj.soundTimers=[];
-    if(obj.pinned){
-      void obj.el.offsetWidth; // force reflow so animation restarts
-      setTimeout(()=>{ if(obj.pinned) startPageFan(i); }, 600);
-    }
-  }, 5200);
-}
-
-function stopPageFan(i){
-  const obj=landingBooks[i]; if(!obj) return;
-  obj.el.classList.remove('page-flipping');
-  if(obj.flipTimer){clearTimeout(obj.flipTimer);obj.flipTimer=null;}
 }
 
 // ════════════════════════════════════
 //  NAVIGATION
 // ════════════════════════════════════
 function showTracker(){
+  playPageTurnSound();   // ← sound plays here, on entering library
   document.getElementById('landing').style.display='none';
   document.getElementById('landingFab').style.display='none';
   if(landingRAF){cancelAnimationFrame(landingRAF);landingRAF=null;}
