@@ -33,13 +33,34 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
 .fbook-inner::after{content:'';position:absolute;left:0;top:0;bottom:0;width:10px;background:rgba(0,0,0,0.3);z-index:2;}
 .fbook-inner img{width:100%;height:100%;object-fit:cover;display:block;}
 .fbook-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:8px;text-align:center;font-family:'Playfair Display',serif;font-size:11px;line-height:1.3;color:var(--text);}
-/* Spotlight */
-.fbook.spotlight .fbook-inner{box-shadow:0 0 0 2px var(--accent),0 0 40px rgba(200,169,110,0.6),8px 12px 50px rgba(0,0,0,0.8);}
-/* Page flip animation */
-@keyframes pageFlip{0%{transform:rotateY(0deg);}25%{transform:rotateY(-20deg);}50%{transform:rotateY(0deg);}75%{transform:rotateY(-15deg);}100%{transform:rotateY(0deg);}}
-.fbook.flipping{animation:pageFlip 0.6s ease-in-out infinite;}
-@keyframes drift{0%{transform:translateY(0px) rotate(var(--r0));}100%{transform:translateY(-22px) rotate(var(--r1));}}
+/* Spotlight glow */
+.fbook.spotlight .fbook-inner{box-shadow:0 0 0 2px #c8a96e,0 0 60px rgba(200,169,110,0.5),8px 12px 50px rgba(0,0,0,0.8)!important;}
 
+/* ── PAGE FAN ANIMATION ── */
+.page-fan{position:absolute;top:4%;right:-2px;height:92%;width:80%;pointer-events:none;transform-origin:left center;perspective:300px;}
+.fan-page{position:absolute;top:0;left:0;width:100%;height:100%;
+  background:linear-gradient(to right,#b8926a 0%,#d4b896 15%,#e8d5b5 40%,#f2e6c8 60%,#ede0c0 80%,#d6c4a0 100%);
+  border-radius:0 3px 3px 0;transform-origin:left center;transform:rotateY(0deg);
+  box-shadow:inset -2px 0 4px rgba(0,0,0,0.15),inset 2px 0 3px rgba(255,255,255,0.3);
+  opacity:0;}
+/* staggered page turns — 8 pages, slow and deliberate */
+.fan-page:nth-child(1){animation:none;}
+.fbook.page-flipping .fan-page:nth-child(1){animation:pageTurn 1.2s ease-in-out 0.00s 1 forwards;}
+.fbook.page-flipping .fan-page:nth-child(2){animation:pageTurn 1.2s ease-in-out 0.55s 1 forwards;}
+.fbook.page-flipping .fan-page:nth-child(3){animation:pageTurn 1.2s ease-in-out 1.10s 1 forwards;}
+.fbook.page-flipping .fan-page:nth-child(4){animation:pageTurn 1.2s ease-in-out 1.65s 1 forwards;}
+.fbook.page-flipping .fan-page:nth-child(5){animation:pageTurn 1.2s ease-in-out 2.20s 1 forwards;}
+.fbook.page-flipping .fan-page:nth-child(6){animation:pageTurn 1.2s ease-in-out 2.75s 1 forwards;}
+.fbook.page-flipping .fan-page:nth-child(7){animation:pageTurn 1.2s ease-in-out 3.30s 1 forwards;}
+.fbook.page-flipping .fan-page:nth-child(8){animation:pageTurn 1.2s ease-in-out 3.85s 1 forwards;}
+@keyframes pageTurn{
+  0%  {opacity:1; transform:rotateY(0deg);}
+  15% {opacity:1; transform:rotateY(-18deg);}
+  50% {opacity:1; transform:rotateY(-70deg);}
+  80% {opacity:0.6;transform:rotateY(-105deg);}
+  100%{opacity:0; transform:rotateY(-135deg);}
+}
+@keyframes drift{0%{transform:translateY(0px) rotate(var(--r0));}100%{transform:translateY(-22px) rotate(var(--r1));}}
 /* FAB */
 .fab{position:fixed;bottom:32px;right:32px;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#0a0a0f;font-size:28px;font-weight:300;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(200,169,110,0.4);z-index:50;transition:all 0.2s;line-height:1;}
 .fab:hover{background:#e0bf80;transform:scale(1.1) rotate(90deg);}
@@ -69,10 +90,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
 .sdrop-info span{font-size:10px;color:var(--muted);}
 .sdrop-loading{padding:12px;text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;}
 
-.genre-filters{display:flex;gap:5px;flex-wrap:wrap;}
-.gf{padding:5px 12px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s;border-radius:2px;}
-.gf.active{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,0.08);}
-.gf:hover{color:var(--text);}
 .sort-sel{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:6px 10px;font-family:'DM Mono',monospace;font-size:11px;border-radius:2px;outline:none;cursor:pointer;}
 .add-book-btn{margin-left:auto;background:var(--accent);color:#0a0a0f;border:none;padding:8px 18px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
 .add-book-btn:hover{background:#e0bf80;}
@@ -163,7 +180,20 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
 .mbtn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
 .mbtn-ghost:hover{border-color:var(--muted);color:var(--text);}
 
-/* Cover preview in add modal */
+/* Modal book search dropdown */
+.modal-search-wrap{position:relative;margin-bottom:8px;}
+.modal-search-wrap input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;border-radius:2px;}
+.modal-search-wrap input:focus{border-color:var(--accent);}
+.modal-search-dropdown{position:absolute;top:calc(100% + 3px);left:0;right:0;background:var(--bg2);border:1px solid var(--accent);border-radius:4px;z-index:600;max-height:240px;overflow-y:auto;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.6);}
+.modal-search-dropdown.open{display:block;}
+.msdrop-item{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;transition:background 0.15s;border-bottom:1px solid var(--border);}
+.msdrop-item:last-child{border-bottom:none;}
+.msdrop-item:hover{background:var(--bg3);}
+.msdrop-item img{width:30px;height:45px;object-fit:cover;border-radius:2px;flex-shrink:0;background:var(--bg3);}
+.msdrop-item img[src=""]{display:none;}
+.msdrop-info strong{font-size:13px;display:block;font-family:'Playfair Display',serif;line-height:1.3;}
+.msdrop-info span{font-size:10px;color:var(--muted);}
+.msdrop-loading{padding:12px;text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;}
 .cover-preview-wrap{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px;}
 .cover-preview{width:70px;height:105px;border-radius:2px;border:1px solid var(--border);flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;text-align:center;overflow:hidden;}
 .cover-preview img{width:100%;height:100%;object-fit:cover;}
@@ -224,21 +254,20 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
     <div class="t-stats" id="tStats"></div>
   </header>
   <div class="streak-bar" id="streakBar"></div>
-  <div class="toolbar">
-    <div class="search-wrap">
-      <span class="search-icon">⌕</span>
-      <input type="text" id="searchInput" placeholder="Search title or author…" oninput="handleLibrarySearch()" autocomplete="off"/>
-      <div class="search-dropdown" id="searchDropdown"></div>
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="searchInput" placeholder="Search or add any book…" oninput="handleLibrarySearch()" autocomplete="off"/>
+        <div class="search-dropdown" id="searchDropdown"></div>
+      </div>
+      <select class="sort-sel" id="sortSel" onchange="renderTracker()">
+        <option value="newest">Newest</option>
+        <option value="rating">Top Rated</option>
+        <option value="pages">Most Pages</option>
+        <option value="alpha">A → Z</option>
+      </select>
+      <button class="add-book-btn" onclick="openModal('add')">+ Add Book</button>
     </div>
-    <div class="genre-filters" id="genreFilters"></div>
-    <select class="sort-sel" id="sortSel" onchange="renderTracker()">
-      <option value="newest">Newest</option>
-      <option value="rating">Top Rated</option>
-      <option value="pages">Most Pages</option>
-      <option value="alpha">A → Z</option>
-    </select>
-    <button class="add-book-btn" onclick="openModal('add')">+ Add Book</button>
-  </div>
   <div class="ai-strip">
     <div><h3>AI Reading Profile</h3><p>Analyse your library and get a personalised next-read recommendation</p></div>
     <button class="ai-strip-btn" id="aiBtn" onclick="getAIInsight()">✦ Analyse My Taste</button>
@@ -266,19 +295,27 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('addModal').style.display='none'">✕</button>
     <h2 id="modalTitle">Add a Book</h2>
-    <p class="modal-sub">Record a new book to your library</p>
+    <p class="modal-sub">Type a title or author — pick from suggestions to auto-fill everything</p>
     <div class="cover-preview-wrap">
-      <div class="cover-preview" id="coverPreview"><span style="padding:4px;">No cover</span></div>
+      <div class="cover-preview" id="coverPreview"><span style="padding:4px;font-size:9px;text-align:center;">No cover</span></div>
       <div style="flex:1;">
-        <div class="fg" style="margin-bottom:8px;"><label>Title</label><input id="fTitle" placeholder="e.g. The Midnight Library" oninput="clearCover()"/></div>
-        <div class="fg" style="margin-bottom:8px;"><label>Author</label><input id="fAuthor" placeholder="e.g. Matt Haig"/></div>
-        <button style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 12px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;border-radius:2px;width:100%;" id="coverFetchBtn" onclick="fetchCoverPreview()">🔍 Search for Cover</button>
+        <div class="fg" style="margin-bottom:8px;">
+          <label>Title</label>
+          <div class="modal-search-wrap">
+            <input id="fTitle" placeholder="e.g. The Midnight Library" autocomplete="off" oninput="onModalSearchInput()"/>
+            <div class="modal-search-dropdown" id="modalSearchDropdown"></div>
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom:0;">
+          <label>Author</label>
+          <input id="fAuthor" placeholder="e.g. Matt Haig" oninput="onModalSearchInput()"/>
+        </div>
       </div>
     </div>
     <div class="fg-row">
-      <div class="fg"><label>Pages</label><input id="fPages" type="number" placeholder="328"/></div>
+      <div class="fg"><label>Pages</label><input id="fPages" type="number" placeholder="e.g. 328" min="1"/></div>
       <div class="fg"><label>Genre</label>
-        <select id="fGenre"><option>Fantasy</option><option>Sci-Fi</option><option>Classic</option><option>Dystopia</option><option>Self-Help</option><option>Romance</option><option>Mystery</option><option>Non-Fiction</option><option>Horror</option><option>Literary Fiction</option></select>
+        <select id="fGenre"><option>Fantasy</option><option>Sci-Fi</option><option>Classic</option><option>Dystopia</option><option>Self-Help</option><option>Romance</option><option>Mystery</option><option>Non-Fiction</option><option>Horror</option><option>Literary Fiction</option><option>Fiction</option></select>
       </div>
     </div>
     <div class="fg"><label>Status</label>
@@ -345,70 +382,65 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
 
 <script>
 // ════════════════════════════════════
-//  DATA
+//  DATA & PERSISTENCE
 // ════════════════════════════════════
-const GENRES = ["All","Fantasy","Sci-Fi","Classic","Dystopia","Self-Help","Romance","Mystery","Non-Fiction","Horror","Literary Fiction"];
 const FALLBACK_COLORS = ["#c8a96e","#7c6af5","#e05c5c","#4ec994","#74b9ff","#fd79a8","#fdcb6e","#a29bfe","#e17055","#55efc4"];
 
-let books = [
-  {id:1,title:"The Hobbit",author:"J.R.R. Tolkien",color:"#c8a96e",pages:310,currentPage:310,genre:"Fantasy",rating:5,status:"read",
-   coverUrl:"https://covers.openlibrary.org/b/isbn/9780547928227-L.jpg"},
-  {id:2,title:"Dune",author:"Frank Herbert",color:"#7c6af5",pages:412,currentPage:412,genre:"Sci-Fi",rating:5,status:"read",
-   coverUrl:"https://covers.openlibrary.org/b/isbn/9780441013593-L.jpg"},
-  {id:3,title:"1984",author:"George Orwell",color:"#e05c5c",pages:328,currentPage:328,genre:"Dystopia",rating:5,status:"read",
-   coverUrl:"https://covers.openlibrary.org/b/isbn/9780451524935-L.jpg"},
-  {id:4,title:"Little Women",author:"Louisa May Alcott",color:"#4ec994",pages:449,currentPage:449,genre:"Classic",rating:4,status:"read",
-   coverUrl:"https://covers.openlibrary.org/b/isbn/9780147514011-L.jpg"},
-  {id:5,title:"Atomic Habits",author:"James Clear",color:"#fd79a8",pages:319,currentPage:180,genre:"Self-Help",rating:4,status:"reading",
-   coverUrl:"https://covers.openlibrary.org/b/isbn/9780735211292-L.jpg"},
+const DEFAULT_BOOKS = [
+  {id:1,title:"The Hobbit",author:"J.R.R. Tolkien",color:"#c8a96e",pages:310,currentPage:310,genre:"Fantasy",rating:5,status:"read",coverUrl:"https://covers.openlibrary.org/b/isbn/9780547928227-L.jpg"},
+  {id:2,title:"Dune",author:"Frank Herbert",color:"#7c6af5",pages:412,currentPage:412,genre:"Sci-Fi",rating:5,status:"read",coverUrl:"https://covers.openlibrary.org/b/isbn/9780441013593-L.jpg"},
+  {id:3,title:"1984",author:"George Orwell",color:"#e05c5c",pages:328,currentPage:328,genre:"Dystopia",rating:5,status:"read",coverUrl:"https://covers.openlibrary.org/b/isbn/9780451524935-L.jpg"},
+  {id:4,title:"Little Women",author:"Louisa May Alcott",color:"#4ec994",pages:449,currentPage:449,genre:"Classic",rating:4,status:"read",coverUrl:"https://covers.openlibrary.org/b/isbn/9780147514011-L.jpg"},
+  {id:5,title:"Atomic Habits",author:"James Clear",color:"#fd79a8",pages:319,currentPage:180,genre:"Self-Help",rating:4,status:"reading",coverUrl:"https://covers.openlibrary.org/b/isbn/9780735211292-L.jpg"},
 ];
 
-let filter="All", selRating=4, selStatus="read", editingId=null, yearGoal=12, shareBookId=null, pendingCoverUrl=null;
+let books = [];
+function saveBooks(){ try{localStorage.setItem('bv_books',JSON.stringify(books));}catch(e){} }
+function loadBooks(){
+  try{
+    const s=localStorage.getItem('bv_books');
+    books = s ? JSON.parse(s) : JSON.parse(JSON.stringify(DEFAULT_BOOKS));
+  }catch(e){ books = JSON.parse(JSON.stringify(DEFAULT_BOOKS)); }
+}
+loadBooks();
+
+let selRating=4, selStatus='read', editingId=null, yearGoal=12, shareBookId=null, pendingCoverUrl=null;
 let parsedImportBooks=[], searchDebounce=null;
 
 // ════════════════════════════════════
-//  COVER API — Open Library (CORS-friendly)
+//  OPEN LIBRARY API
 // ════════════════════════════════════
-
-// Search Open Library → returns cover URL string or null
-async function fetchCoverUrl(title, author) {
-  try {
-    const q = encodeURIComponent(`${title} ${author||''}`);
-    const res = await fetch(`https://openlibrary.org/search.json?q=${q}&limit=5&fields=isbn,cover_edition_key,cover_i,title,author_name,number_of_pages_median`, {signal: AbortSignal.timeout(6000)});
+async function fetchCoverUrl(title, author){
+  try{
+    const q=encodeURIComponent(`${title} ${author||''}`);
+    const res=await fetch(`https://openlibrary.org/search.json?q=${q}&limit=5&fields=isbn,cover_edition_key,cover_i`,{signal:AbortSignal.timeout(7000)});
     if(!res.ok) return null;
-    const data = await res.json();
+    const data=await res.json();
     if(!data.docs?.length) return null;
-    for(const doc of data.docs) {
-      // prefer edition key (more reliable)
+    for(const doc of data.docs){
       if(doc.cover_edition_key) return `https://covers.openlibrary.org/b/olid/${doc.cover_edition_key}-L.jpg`;
       if(doc.cover_i) return `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
       if(doc.isbn?.[0]) return `https://covers.openlibrary.org/b/isbn/${doc.isbn[0]}-L.jpg`;
     }
-  } catch(e){}
+  }catch(e){}
   return null;
 }
 
-// Search returns [{title,author,coverUrl,pages}]
-async function searchGoogleBooks(query) {
-  try {
-    const q = encodeURIComponent(query);
-    const res = await fetch(`https://openlibrary.org/search.json?q=${q}&limit=8&fields=isbn,cover_edition_key,cover_i,title,author_name,number_of_pages_median`, {signal: AbortSignal.timeout(6000)});
+async function searchOpenLibrary(query){
+  try{
+    const q=encodeURIComponent(query);
+    const res=await fetch(`https://openlibrary.org/search.json?q=${q}&limit=8&fields=isbn,cover_edition_key,cover_i,title,author_name,number_of_pages_median`,{signal:AbortSignal.timeout(7000)});
     if(!res.ok) return [];
-    const data = await res.json();
+    const data=await res.json();
     if(!data.docs) return [];
-    return data.docs.slice(0,8).map(doc => {
-      let coverUrl = null;
-      if(doc.cover_edition_key) coverUrl = `https://covers.openlibrary.org/b/olid/${doc.cover_edition_key}-M.jpg`;
-      else if(doc.cover_i) coverUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
-      else if(doc.isbn?.[0]) coverUrl = `https://covers.openlibrary.org/b/isbn/${doc.isbn[0]}-M.jpg`;
-      return {
-        title: doc.title || 'Unknown',
-        author: (doc.author_name||['Unknown']).slice(0,2).join(', '),
-        coverUrl,
-        pages: doc.number_of_pages_median || 0,
-      };
-    }).filter(b => b.title !== 'Unknown');
-  } catch(e){ return []; }
+    return data.docs.slice(0,8).map(doc=>{
+      let coverUrl=null;
+      if(doc.cover_edition_key) coverUrl=`https://covers.openlibrary.org/b/olid/${doc.cover_edition_key}-M.jpg`;
+      else if(doc.cover_i) coverUrl=`https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
+      else if(doc.isbn?.[0]) coverUrl=`https://covers.openlibrary.org/b/isbn/${doc.isbn[0]}-M.jpg`;
+      return{title:doc.title||'Unknown',author:(doc.author_name||['Unknown']).slice(0,2).join(', '),coverUrl,pages:doc.number_of_pages_median||0};
+    }).filter(b=>b.title!=='Unknown');
+  }catch(e){ return []; }
 }
 
 // ════════════════════════════════════
@@ -416,147 +448,185 @@ async function searchGoogleBooks(query) {
 // ════════════════════════════════════
 function readCount(){return books.filter(b=>b.status==='read').length;}
 function totalPages(){return books.filter(b=>b.status==='read').reduce((a,b)=>a+b.pages,0);}
-function avgRating(){const r=books.filter(b=>b.status==='read');return r.length?(r.reduce((a,b)=>a+b.rating,0)/r.length).toFixed(1):"–";}
-function starsHtml(v,sz=12){return[1,2,3,4,5].map(s=>`<span style="color:${s<=v?'#c8a96e':'#2a2a38'};font-size:${sz}px">★</span>`).join("");}
+function avgRating(){const r=books.filter(b=>b.status==='read');return r.length?(r.reduce((a,b)=>a+b.rating,0)/r.length).toFixed(1):'–';}
+function starsHtml(v,sz=12){return[1,2,3,4,5].map(s=>`<span style="color:${s<=v?'#c8a96e':'#2a2a38'};font-size:${sz}px">★</span>`).join('');}
 
-function coverImg(b, cls='', style='', fallbackStyle='') {
-  if(b.coverUrl) {
-    return `<img src="${b.coverUrl}" class="${cls}" style="${style}" 
-      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-      <div class="mc-cover-fallback" style="display:none;${fallbackStyle}background:linear-gradient(160deg,${b.color}60,${b.color}20);">${b.title}</div>`;
+// ════════════════════════════════════
+//  PAGE FLIP SOUND (Web Audio API)
+// ════════════════════════════════════
+let audioCtx=null;
+function getAudioCtx(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+
+function playPageFlipSound(){
+  try{
+    const ctx=getAudioCtx();
+    // longer rustling sound to match slow flip
+    const dur=0.55;
+    const buf=ctx.createBuffer(1,ctx.sampleRate*dur,ctx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++){
+      const t=i/ctx.sampleRate;
+      // slow attack, slow decay — papery swish
+      const env=Math.pow(t/0.08,2)*Math.exp(-t*9)*(t<0.08?1:1);
+      d[i]=(Math.random()*2-1)*env*1.1;
+    }
+    const src=ctx.createBufferSource(); src.buffer=buf;
+    const lpf=ctx.createBiquadFilter(); lpf.type='lowpass'; lpf.frequency.value=4200; lpf.Q.value=0.8;
+    const hpf=ctx.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=600; hpf.Q.value=0.6;
+    const gain=ctx.createGain(); gain.gain.value=0.6;
+    src.connect(hpf); hpf.connect(lpf); lpf.connect(gain); gain.connect(ctx.destination);
+    src.start();
+  }catch(e){}
+}
+
+// Play one sound per page, timed to exactly when each page starts turning
+// Page n starts at n * 0.55s
+function schedulePageSounds(startOffsetMs){
+  const timers=[];
+  for(let i=0;i<8;i++){
+    const t=startOffsetMs + i*550; // matches CSS animation-delay of i*0.55s
+    timers.push(setTimeout(playPageFlipSound, t));
   }
-  return `<div class="mc-cover-fallback" style="background:linear-gradient(160deg,${b.color}60,${b.color}20);${fallbackStyle}">${b.title}</div>`;
+  return timers;
 }
 
 // ════════════════════════════════════
 //  LANDING — floating books + effects
 // ════════════════════════════════════
-let landingBooks = []; // {el, x, y, vx, vy, w, h, r, book, spotlightTimer, flipTimer}
-let landingRAF = null;
-let hoveredIdx = -1;
+let landingBooks=[], landingRAF=null;
 
 function renderLanding(){
-  const canvas = document.getElementById('booksCanvas');
-  canvas.innerHTML = '';
-  landingBooks = [];
-  if(landingRAF) cancelAnimationFrame(landingRAF);
+  const canvas=document.getElementById('booksCanvas');
+  canvas.innerHTML=''; landingBooks=[];
+  if(landingRAF){cancelAnimationFrame(landingRAF);landingRAF=null;}
+  const W=window.innerWidth, H=window.innerHeight;
+  const all=[...books];
+  while(all.length<10) all.push(...books);
+  const count=Math.min(14,all.length);
 
-  const W = window.innerWidth, H = window.innerHeight;
-  const all = [...books];
-  while(all.length < 10) all.push(...books);
-  const count = Math.min(14, all.length);
+  for(let i=0;i<count;i++){
+    const b=all[i];
+    const w=70+(i%4)*20, h=Math.round(w*1.55);
+    const x=Math.random()*(W-w), y=Math.random()*(H-h);
+    const vx=(Math.random()-0.5)*0.3, vy=(Math.random()-0.5)*0.3;
+    const r=(Math.random()-0.5)*14;
 
-  for(let i=0; i<count; i++){
-    const b = all[i];
-    const w = 70 + (i%4)*20;
-    const h = Math.round(w*1.55);
-    const x = Math.random()*(W - w);
-    const y = Math.random()*(H - h);
-    const vx = (Math.random()-0.5)*0.35;
-    const vy = (Math.random()-0.5)*0.35;
-    const r = (Math.random()-0.5)*12;
-
-    const el = document.createElement('div');
+    const el=document.createElement('div');
     el.className='fbook';
     el.style.cssText=`left:0;top:0;width:${w}px;position:absolute;transform-origin:center;`;
 
-    const inner = document.createElement('div');
+    const inner=document.createElement('div');
     inner.className='fbook-inner';
-    inner.style.cssText=`width:${w}px;height:${h}px;`;
+    inner.style.cssText=`width:${w}px;height:${h}px;position:relative;`;
 
     if(b.coverUrl){
-      const img = document.createElement('img');
-      img.src = b.coverUrl;
+      const img=document.createElement('img');
+      img.src=b.coverUrl;
       img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
-      img.onerror = function(){
+      img.onerror=function(){
         this.style.display='none';
-        const fb = document.createElement('div');
+        const fb=document.createElement('div');
         fb.className='fbook-fallback';
         fb.style.background=`linear-gradient(160deg,${b.color}70,${b.color}25)`;
-        fb.textContent=b.title;
-        inner.appendChild(fb);
+        fb.textContent=b.title; inner.appendChild(fb);
       };
       inner.appendChild(img);
     } else {
-      const fb = document.createElement('div');
+      const fb=document.createElement('div');
       fb.className='fbook-fallback';
       fb.style.background=`linear-gradient(160deg,${b.color}70,${b.color}25)`;
-      fb.textContent=b.title;
-      inner.appendChild(fb);
+      fb.textContent=b.title; inner.appendChild(fb);
     }
 
+    // Page fan — 8 rustic brown pages
+    const fan=document.createElement('div');
+    fan.className='page-fan';
+    for(let p=0;p<8;p++){
+      const page=document.createElement('div');
+      page.className='fan-page';
+      page.style.cssText=`top:${1+p*0.5}%;height:${98-p}%;opacity:0;`;
+      fan.appendChild(page);
+    }
+    inner.appendChild(fan);
     el.appendChild(inner);
     canvas.appendChild(el);
 
-    const obj = {el, inner, x, y, vx, vy, w, h, r, book:b, spotlightTimer:null, flipTimer:null};
+    const obj={el,inner,fan,x,y,vx,vy,w,h,r,book:b,
+               hoverTimer:null,flipTimer:null,soundTimers:[],
+               pinnedVx:vx,pinnedVy:vy,pinned:false};
     landingBooks.push(obj);
     applyTransform(obj);
 
-    // Hover detection per book
-    el.addEventListener('mouseenter', ()=>{ startSpotlight(i); });
-    el.addEventListener('mouseleave', ()=>{ endSpotlight(i); });
+    el.addEventListener('mouseenter',()=>startHover(i));
+    el.addEventListener('mouseleave',()=>endHover(i));
   }
-
   animateLanding();
 }
 
-function applyTransform(obj){
-  obj.el.style.transform = `translate(${obj.x}px,${obj.y}px) rotate(${obj.r}deg)`;
-}
+function applyTransform(obj){ obj.el.style.transform=`translate(${obj.x}px,${obj.y}px) rotate(${obj.r}deg)`; }
 
 function animateLanding(){
-  const W = window.innerWidth, H = window.innerHeight;
+  const W=window.innerWidth,H=window.innerHeight;
   for(const obj of landingBooks){
     if(!obj.pinned){
-      obj.x += obj.vx;
-      obj.y += obj.vy;
-      if(obj.x < 0){obj.x=0;obj.vx=Math.abs(obj.vx);}
-      if(obj.x > W-obj.w){obj.x=W-obj.w;obj.vx=-Math.abs(obj.vx);}
-      if(obj.y < 0){obj.y=0;obj.vy=Math.abs(obj.vy);}
-      if(obj.y > H-obj.h){obj.y=H-obj.h;obj.vy=-Math.abs(obj.vy);}
+      obj.x+=obj.vx; obj.y+=obj.vy;
+      if(obj.x<0){obj.x=0;obj.vx=Math.abs(obj.vx);}
+      if(obj.x>W-obj.w){obj.x=W-obj.w;obj.vx=-Math.abs(obj.vx);}
+      if(obj.y<0){obj.y=0;obj.vy=Math.abs(obj.vy);}
+      if(obj.y>H-obj.h){obj.y=H-obj.h;obj.vy=-Math.abs(obj.vy);}
       applyTransform(obj);
     }
   }
-  landingRAF = requestAnimationFrame(animateLanding);
+  landingRAF=requestAnimationFrame(animateLanding);
 }
 
-function startSpotlight(i){
-  const obj = landingBooks[i];
-  if(!obj) return;
-  // add spotlight glow
-  obj.inner.style.boxShadow='0 0 0 2px #c8a96e, 0 0 50px rgba(200,169,110,0.7), 8px 12px 50px rgba(0,0,0,0.8)';
+function startHover(i){
+  const obj=landingBooks[i]; if(!obj) return;
+  obj.pinned=true;
+  obj.vx=0; obj.vy=0;
+  // spotlight glow immediately
+  obj.inner.style.boxShadow='0 0 0 2px #c8a96e,0 0 60px rgba(200,169,110,0.55),8px 12px 50px rgba(0,0,0,0.85)';
   obj.el.style.zIndex='10';
-  // slow it down
-  obj.pinnedVx = obj.vx; obj.pinnedVy = obj.vy;
-  obj.vx *= 0.1; obj.vy *= 0.1;
-  // after 7s → page flip for 3s
-  obj.spotlightTimer = setTimeout(()=>{
-    startPageFlip(i);
-  }, 7000);
+  // wait 4 seconds, THEN start flipping
+  obj.hoverTimer=setTimeout(()=>{ if(obj.pinned) startPageFan(i); }, 4000);
 }
 
-function endSpotlight(i){
-  const obj = landingBooks[i];
-  if(!obj) return;
+function endHover(i){
+  const obj=landingBooks[i]; if(!obj) return;
+  obj.pinned=false;
   obj.inner.style.boxShadow='';
   obj.el.style.zIndex='';
-  if(obj.spotlightTimer){clearTimeout(obj.spotlightTimer);obj.spotlightTimer=null;}
+  obj.vx=obj.pinnedVx; obj.vy=obj.pinnedVy;
+  // cancel everything
+  if(obj.hoverTimer){clearTimeout(obj.hoverTimer);obj.hoverTimer=null;}
   if(obj.flipTimer){clearTimeout(obj.flipTimer);obj.flipTimer=null;}
-  stopPageFlip(i);
-  obj.vx = (obj.pinnedVx||obj.vx)*1; obj.vy = (obj.pinnedVy||obj.vy)*1;
+  (obj.soundTimers||[]).forEach(t=>clearTimeout(t));
+  obj.soundTimers=[];
+  stopPageFan(i);
 }
 
-function startPageFlip(i){
-  const obj = landingBooks[i];
-  if(!obj) return;
-  obj.inner.style.animation='pageFlip 0.6s ease-in-out infinite';
-  obj.flipTimer = setTimeout(()=>{ stopPageFlip(i); obj.inner.style.boxShadow=''; obj.vx=obj.pinnedVx||obj.vx;obj.vy=obj.pinnedVy||obj.vy; }, 3000);
+function startPageFan(i){
+  const obj=landingBooks[i]; if(!obj||!obj.pinned) return;
+  // trigger CSS flip
+  obj.el.classList.add('page-flipping');
+  // schedule one sound per page, exactly when each page starts turning
+  obj.soundTimers=schedulePageSounds(0);
+  // total flip duration = last page delay (3.85s) + page anim duration (1.2s) = ~5.1s
+  // wait that long, then reset and replay
+  obj.flipTimer=setTimeout(()=>{
+    obj.el.classList.remove('page-flipping');
+    obj.soundTimers=[];
+    if(obj.pinned){
+      void obj.el.offsetWidth; // force reflow so animation restarts
+      setTimeout(()=>{ if(obj.pinned) startPageFan(i); }, 600);
+    }
+  }, 5200);
 }
 
-function stopPageFlip(i){
-  const obj = landingBooks[i];
-  if(!obj) return;
-  obj.inner.style.animation='';
+function stopPageFan(i){
+  const obj=landingBooks[i]; if(!obj) return;
+  obj.el.classList.remove('page-flipping');
+  if(obj.flipTimer){clearTimeout(obj.flipTimer);obj.flipTimer=null;}
 }
 
 // ════════════════════════════════════
@@ -575,10 +645,7 @@ function showLanding(){
   document.getElementById('landingFab').style.display='flex';
   renderLanding();
 }
-function openModalFromLanding(){
-  showTracker();
-  setTimeout(()=>openModal('add'),50);
-}
+function openModalFromLanding(){showTracker();setTimeout(()=>openModal('add'),50);}
 
 // ════════════════════════════════════
 //  TRACKER RENDER
@@ -602,16 +669,13 @@ function renderTracker(){
     <div class="streak-item">▶ <strong>${books.filter(b=>b.status==='reading').length}</strong> in progress</div>
     <button class="change-goal-btn" onclick="changeGoal()">⚙ Goal</button>`;
 
-  document.getElementById('genreFilters').innerHTML=GENRES.map(g=>
-    `<button class="gf${filter===g?' active':''}" onclick="setFilter('${g}')">${g}</button>`).join('');
-
   // Currently reading
   const crBooks=books.filter(b=>b.status==='reading');
   document.getElementById('crCount').textContent=`${crBooks.length} book${crBooks.length!==1?'s':''}`;
   document.getElementById('crGrid').innerHTML=crBooks.length?crBooks.map(b=>{
     const pct=b.pages?Math.round((b.currentPage/b.pages)*100):0;
     const coverEl=b.coverUrl
-      ?`<img class="cr-cover" src="${b.coverUrl}" onerror="this.style.display='none'" />`
+      ?`<img class="cr-cover" src="${b.coverUrl}" onerror="this.style.display='none'"/>`
       :`<div class="cr-cover-ph" style="background:${b.color}30">📖</div>`;
     return`<div class="cr-card">
       <div class="cr-top">${coverEl}
@@ -628,7 +692,7 @@ function renderTracker(){
   }).join(''):`<p style="color:var(--muted);font-style:italic;font-size:13px;padding:4px 0;">Nothing in progress — add a book you're currently reading!</p>`;
 
   // Library grid — COVER FIRST
-  let filtered=books.filter(b=>b.status==='read'&&(filter==='All'||b.genre===filter));
+  let filtered=books.filter(b=>b.status==='read');
   if(search) filtered=filtered.filter(b=>b.title.toLowerCase().includes(search)||b.author.toLowerCase().includes(search));
   filtered.sort((a,b)=>{
     if(sortBy==='rating') return b.rating-a.rating;
@@ -643,8 +707,7 @@ function renderTracker(){
         ${b.coverUrl
           ?`<img class="mc-cover-img" src="${b.coverUrl}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
              <div class="mc-cover-fallback" style="display:none;background:linear-gradient(160deg,${b.color}60,${b.color}20);">${b.title}</div>`
-          :`<div class="mc-cover-fallback" style="background:linear-gradient(160deg,${b.color}60,${b.color}20);">${b.title}</div>`
-        }
+          :`<div class="mc-cover-fallback" style="background:linear-gradient(160deg,${b.color}60,${b.color}20);">${b.title}</div>`}
       </div>
       <div class="mc-info">
         <div class="mc-title">${b.title}</div>
@@ -658,46 +721,43 @@ function renderTracker(){
     </div>`).join(''):`<div class="empty-state">No books found.</div>`;
 }
 
-function setFilter(g){filter=g;renderTracker();}
-function removeBook(id){if(confirm('Remove this book?')){books=books.filter(b=>b.id!==id);renderTracker();}}
+function removeBook(id){if(confirm('Remove this book?')){books=books.filter(b=>b.id!==id);saveBooks();renderTracker();}}
 function updateProgress(id){
   const val=parseInt(document.getElementById(`pg_${id}`).value);
   const book=books.find(b=>b.id===id);
-  if(book&&!isNaN(val)&&val>=0&&val<=book.pages){book.currentPage=val;renderTracker();}
+  if(book&&!isNaN(val)&&val>=0&&val<=book.pages){book.currentPage=val;saveBooks();renderTracker();}
 }
-function markRead(id){const b=books.find(x=>x.id===id);if(b){b.status='read';b.currentPage=b.pages;renderTracker();}}
+function markRead(id){const b=books.find(x=>x.id===id);if(b){b.status='read';b.currentPage=b.pages;saveBooks();renderTracker();}}
 function changeGoal(){const v=prompt('Set your reading goal for this year:',yearGoal);if(v&&!isNaN(v)&&parseInt(v)>0){yearGoal=parseInt(v);renderTracker();}}
 
 // ════════════════════════════════════
 //  LIVE BOOK SEARCH DROPDOWN
 // ════════════════════════════════════
 function handleLibrarySearch(){
-  renderTracker(); // filter existing library
+  renderTracker();
   const q=(document.getElementById('searchInput').value||'').trim();
   const dropdown=document.getElementById('searchDropdown');
-  if(q.length < 2){ dropdown.classList.remove('open'); return; }
+  if(q.length<2){dropdown.classList.remove('open');return;}
   clearTimeout(searchDebounce);
-  dropdown.innerHTML='<div class="sdrop-loading">Searching books…</div>';
+  dropdown.innerHTML='<div class="sdrop-loading">Searching…</div>';
   dropdown.classList.add('open');
   searchDebounce=setTimeout(async()=>{
-    const results=await searchGoogleBooks(q);
-    if(!results.length){ dropdown.innerHTML='<div class="sdrop-loading">No results found</div>'; return; }
+    const results=await searchOpenLibrary(q);
+    if(!results.length){dropdown.innerHTML='<div class="sdrop-loading">No results found</div>';return;}
     dropdown.innerHTML=results.map((r,i)=>`
       <div class="sdrop-item" onclick="addFromSearch(${i})">
         ${r.coverUrl?`<img src="${r.coverUrl}" onerror="this.style.display='none'"/>`:'<img src="" style="display:none"/>'}
         <div class="sdrop-info"><strong>${r.title}</strong><span>${r.author}${r.pages?' · '+r.pages+' pages':''}</span></div>
       </div>`).join('');
     dropdown._results=results;
-  }, 500);
+  },500);
 }
 
 function addFromSearch(idx){
   const dropdown=document.getElementById('searchDropdown');
-  const r=dropdown._results?.[idx];
-  if(!r) return;
+  const r=dropdown._results?.[idx]; if(!r) return;
   dropdown.classList.remove('open');
   document.getElementById('searchInput').value='';
-  // Pre-fill modal
   openModal('add');
   setTimeout(()=>{
     document.getElementById('fTitle').value=r.title;
@@ -710,22 +770,26 @@ function addFromSearch(idx){
   },50);
 }
 
-// Close dropdown on outside click
-document.addEventListener('click', e=>{
+document.addEventListener('click',e=>{
   if(!e.target.closest('.search-wrap')) document.getElementById('searchDropdown')?.classList.remove('open');
 });
 
 // ════════════════════════════════════
 //  ADD / EDIT MODAL
 // ════════════════════════════════════
-function openModal(mode, id=null){
+let modalSearchDebounce=null, modalSearchResults=[];
+
+function openModal(mode,id=null){
   editingId=id; selRating=4; selStatus='read'; pendingCoverUrl=null;
+  modalSearchResults=[];
   document.getElementById('fTitle').value='';
   document.getElementById('fAuthor').value='';
   document.getElementById('fPages').value='';
   document.getElementById('fCurrentPage').value='';
   document.getElementById('fGenre').value='Fantasy';
-  document.getElementById('coverPreview').innerHTML='<span style="padding:4px;">No cover</span>';
+  document.getElementById('coverPreview').innerHTML='<span style="padding:4px;font-size:9px;text-align:center;">No cover</span>';
+  const dd=document.getElementById('modalSearchDropdown');
+  if(dd) dd.classList.remove('open');
   document.getElementById('modalTitle').textContent='Add a Book';
   if(id){
     const b=books.find(x=>x.id===id);
@@ -757,84 +821,91 @@ function renderModalStars(){
   document.getElementById('mStars').innerHTML=[1,2,3,4,5].map(s=>
     `<span class="m-star${s<=selRating?' on':''}" onclick="selRating=${s};renderModalStars()">★</span>`).join('');
 }
-async function fetchCoverPreview(){
+
+// Auto-search in modal — triggers after 5 chars in title or author
+function onModalSearchInput(){
   const title=document.getElementById('fTitle').value.trim();
   const author=document.getElementById('fAuthor').value.trim();
-  if(!title){alert('Enter a title first.');return;}
-  const btn=document.getElementById('coverFetchBtn');
-  btn.textContent='Searching…'; btn.disabled=true;
-  const url=await fetchCoverUrl(title, author);
-  const preview=document.getElementById('coverPreview');
-  if(url){
-    pendingCoverUrl=url;
-    preview.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<span>Not found</span>';pendingCoverUrl=null;"/>`;
-  } else {
-    pendingCoverUrl=null;
-    preview.innerHTML='<span style="padding:4px;">Not found</span>';
+  const q=title.length>=5?title:author.length>=5?author:'';
+  const dropdown=document.getElementById('modalSearchDropdown');
+  if(!q){dropdown.classList.remove('open');return;}
+  clearTimeout(modalSearchDebounce);
+  dropdown.innerHTML='<div class="msdrop-loading">Searching…</div>';
+  dropdown.classList.add('open');
+  modalSearchDebounce=setTimeout(async()=>{
+    const results=await searchOpenLibrary(q);
+    modalSearchResults=results;
+    if(!results.length){dropdown.innerHTML='<div class="msdrop-loading">No results found</div>';return;}
+    dropdown.innerHTML=results.map((r,i)=>`
+      <div class="msdrop-item" onclick="selectModalBook(${i})">
+        ${r.coverUrl?`<img src="${r.coverUrl}" onerror="this.style.display='none'"/>`:''}
+        <div class="msdrop-info"><strong>${r.title}</strong><span>${r.author}${r.pages?' · '+r.pages+' pages':''}</span></div>
+      </div>`).join('');
+  },400);
+}
+
+function selectModalBook(idx){
+  const r=modalSearchResults[idx]; if(!r) return;
+  document.getElementById('modalSearchDropdown').classList.remove('open');
+  document.getElementById('fTitle').value=r.title;
+  document.getElementById('fAuthor').value=r.author;
+  if(r.pages>0) document.getElementById('fPages').value=r.pages;
+  if(r.coverUrl){
+    pendingCoverUrl=r.coverUrl;
+    document.getElementById('coverPreview').innerHTML=`<img src="${r.coverUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<span style=padding:4px;font-size:9px>No cover</span>'"/>`;
   }
-  btn.textContent='🔍 Search for Cover'; btn.disabled=false;
 }
-function clearCover(){
-  pendingCoverUrl=null;
-  document.getElementById('coverPreview').innerHTML='<span style="padding:4px;">No cover</span>';
-}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#addModal')) document.getElementById('modalSearchDropdown')?.classList.remove('open');
+  if(!e.target.closest('.search-wrap')) document.getElementById('searchDropdown')?.classList.remove('open');
+});
+
 async function saveBook(){
   const title=document.getElementById('fTitle').value.trim();
   const author=document.getElementById('fAuthor').value.trim();
-  const pages=parseInt(document.getElementById('fPages').value);
+  const pagesRaw=document.getElementById('fPages').value.trim();
+  const pages=parseInt(pagesRaw);
   const genre=document.getElementById('fGenre').value;
-  const currentPage=selStatus==='reading'?parseInt(document.getElementById('fCurrentPage').value)||0:pages||0;
-  if(!title||!author||!pages){alert('Please fill in title, author and pages.');return;}
+  if(!title){alert('Please enter the book title.');document.getElementById('fTitle').focus();return;}
+  if(!author){alert('Please enter the author name.');document.getElementById('fAuthor').focus();return;}
+  const finalPages=(!pagesRaw||isNaN(pages)||pages<=0)?0:pages;
+  const currentPage=selStatus==='reading'?parseInt(document.getElementById('fCurrentPage').value)||0:finalPages;
   let coverUrl=pendingCoverUrl;
   if(!coverUrl) coverUrl=await fetchCoverUrl(title,author);
   const color=FALLBACK_COLORS[books.length%FALLBACK_COLORS.length];
   if(editingId){
     const i=books.findIndex(b=>b.id===editingId);
-    if(i>-1)books[i]={...books[i],title,author,pages,currentPage,genre,rating:selRating,status:selStatus,coverUrl:coverUrl||books[i].coverUrl};
+    if(i>-1)books[i]={...books[i],title,author,pages:finalPages,currentPage,genre,rating:selRating,status:selStatus,coverUrl:coverUrl||books[i].coverUrl};
   } else {
-    books.push({id:Date.now(),title,author,pages,currentPage,genre,rating:selRating,status:selStatus,color,coverUrl:coverUrl||null});
+    books.push({id:Date.now(),title,author,pages:finalPages,currentPage,genre,rating:selRating,status:selStatus,color,coverUrl:coverUrl||null});
   }
+  saveBooks();
   document.getElementById('addModal').style.display='none';
   renderTracker();
 }
+
 
 // ════════════════════════════════════
 //  SHARE
 // ════════════════════════════════════
 function openShare(id){
-  shareBookId=id;
-  const b=books.find(x=>x.id===id); if(!b)return;
-  const coverEl=b.coverUrl
-    ?`<img class="sp-cover" src="${b.coverUrl}" onerror="this.style.display='none'"/>`
-    :`<div class="sp-cover-ph">📚</div>`;
-  document.getElementById('sharePreview').innerHTML=`
-    ${coverEl}
-    <div class="sp-details">
-      <div class="sp-title">${b.title}</div>
-      <div class="sp-author">by ${b.author}</div>
-      <div style="color:#c8a96e;margin-bottom:10px;">${starsHtml(b.rating,14)}</div>
-      <div class="sp-quote">A standout ${b.genre.toLowerCase()} — ${b.pages} pages I won't forget.</div>
-    </div>`;
+  shareBookId=id; const b=books.find(x=>x.id===id); if(!b) return;
+  const coverEl=b.coverUrl?`<img class="sp-cover" src="${b.coverUrl}" onerror="this.style.display='none'"/>`:`<div class="sp-cover-ph">📚</div>`;
+  document.getElementById('sharePreview').innerHTML=`${coverEl}<div class="sp-details"><div class="sp-title">${b.title}</div><div class="sp-author">by ${b.author}</div><div style="color:#c8a96e;margin-bottom:10px;">${starsHtml(b.rating,14)}</div><div class="sp-quote">A standout ${b.genre.toLowerCase()} — ${b.pages} pages I won't forget.</div></div>`;
   document.getElementById('shareModal').style.display='flex';
 }
 function copyShareText(){
-  const b=books.find(x=>x.id===shareBookId); if(!b)return;
-  const text=`📚 "${b.title}" by ${b.author}\n${'★'.repeat(b.rating)}${'☆'.repeat(5-b.rating)} · ${b.genre} · ${b.pages} pages\n\nHighly recommend — a must read! #BookRecommendation`;
-  navigator.clipboard.writeText(text).then(()=>{
-    const m=document.getElementById('copiedMsg'); m.style.display='block';
-    setTimeout(()=>m.style.display='none',2500);
-  });
+  const b=books.find(x=>x.id===shareBookId); if(!b) return;
+  const text=`📚 "${b.title}" by ${b.author}\n${'★'.repeat(b.rating)}${'☆'.repeat(5-b.rating)} · ${b.genre} · ${b.pages} pages\n\nHighly recommend! #BookRecommendation`;
+  navigator.clipboard.writeText(text).then(()=>{const m=document.getElementById('copiedMsg');m.style.display='block';setTimeout(()=>m.style.display='none',2500);});
 }
 
 // ════════════════════════════════════
-//  GOODREADS IMPORT
+//  GOODREADS IMPORT — fetch all covers first, then save
 // ════════════════════════════════════
-function handleFileDrop(e){
-  e.preventDefault();
-  document.getElementById('importDrop').classList.remove('drag-over');
-  const file=e.dataTransfer.files[0]; if(file)parseGoodreadsCSV(file);
-}
-function handleFileSelect(e){const file=e.target.files[0]; if(file)parseGoodreadsCSV(file);}
+function handleFileDrop(e){e.preventDefault();document.getElementById('importDrop').classList.remove('drag-over');const file=e.dataTransfer.files[0];if(file)parseGoodreadsCSV(file);}
+function handleFileSelect(e){const file=e.target.files[0];if(file)parseGoodreadsCSV(file);}
 
 function parseGoodreadsCSV(file){
   const reader=new FileReader();
@@ -844,8 +915,8 @@ function parseGoodreadsCSV(file){
     if(rows.length<2){alert("Couldn't read this file. Make sure it's a Goodreads CSV export.");return;}
     const headers=parseCSVRow(rows[0]).map(h=>h.toLowerCase().trim().replace(/"/g,''));
     const col=name=>headers.findIndex(h=>h.includes(name));
-    const titleIdx=col('title'), authorIdx=col('author'), pagesIdx=col('number of pages');
-    const ratingIdx=col('my rating'), shelfIdx=col('exclusive shelf');
+    const titleIdx=col('title'),authorIdx=col('author'),pagesIdx=col('number of pages');
+    const ratingIdx=col('my rating'),shelfIdx=col('exclusive shelf');
     if(titleIdx===-1){alert("This doesn't look like a Goodreads export. Title column not found.");return;}
     parsedImportBooks=[];
     for(let i=1;i<rows.length;i++){
@@ -859,7 +930,7 @@ function parseGoodreadsCSV(file){
       if(shelf==='to-read') continue;
       if(books.find(b=>b.title.toLowerCase()===title.toLowerCase())) continue;
       const status=shelf==='currently-reading'?'reading':'read';
-      parsedImportBooks.push({title,author,pages,rating:rating||4,status,currentPage:status==='reading'?0:pages});
+      parsedImportBooks.push({title,author,pages,rating:rating||4,status,currentPage:status==='reading'?0:pages,coverUrl:null});
     }
     renderImportResults();
   };
@@ -868,11 +939,7 @@ function parseGoodreadsCSV(file){
 
 function parseCSVRow(row){
   const result=[]; let cur=''; let inQ=false;
-  for(const ch of row){
-    if(ch==='"'){inQ=!inQ;}
-    else if(ch===','&&!inQ){result.push(cur);cur='';}
-    else{cur+=ch;}
-  }
+  for(const ch of row){if(ch==='"'){inQ=!inQ;}else if(ch===','&&!inQ){result.push(cur);cur='';}else{cur+=ch;}}
   result.push(cur); return result;
 }
 
@@ -892,10 +959,15 @@ function renderImportResults(){
       <div class="import-book-info"><strong>${b.title}</strong><span>${b.author} · ${b.status==='reading'?'▶ Reading':'✓ Read'} · ${b.rating}★</span></div>
       <input type="checkbox" class="import-book-check" data-idx="${i}" checked/>
     </div>`).join('');
-  // fetch covers async
+
+  // Fetch covers for all books — store back into parsedImportBooks
   parsedImportBooks.forEach(async(b,i)=>{
     const url=await fetchCoverUrl(b.title,b.author);
-    if(url){parsedImportBooks[i].coverUrl=url;const img=document.getElementById(`imp-img-${i}`);if(img){img.src=url;img.style.display='block';}}
+    if(url){
+      parsedImportBooks[i].coverUrl=url;
+      const img=document.getElementById(`imp-img-${i}`);
+      if(img){img.src=url;img.style.display='block';}
+    }
   });
 }
 
@@ -910,11 +982,15 @@ async function importSelected(){
   for(const idx of checked){
     const b=parsedImportBooks[idx];
     const c=FALLBACK_COLORS[(books.length+added)%FALLBACK_COLORS.length];
-    books.push({id:Date.now()+added,...b,color:c});
+    // Include coverUrl that was fetched asynchronously
+    books.push({id:Date.now()+added,title:b.title,author:b.author,pages:b.pages,
+      currentPage:b.currentPage,genre:b.genre||'Fiction',rating:b.rating,
+      status:b.status,color:c,coverUrl:b.coverUrl||null});
     added++;
   }
+  saveBooks(); // ← persist to localStorage
   const status=document.getElementById('importStatus');
-  status.textContent=`✓ ${added} book${added!==1?'s':''} imported!`; status.style.display='block';
+  status.textContent=`✓ ${added} book${added!==1?'s':''} imported and saved!`; status.style.display='block';
   setTimeout(()=>{
     document.getElementById('importModal').style.display='none';
     status.style.display='none'; btn.textContent='Import Selected Books'; btn.disabled=false;
@@ -922,7 +998,7 @@ async function importSelected(){
     document.getElementById('importActions').style.display='none';
     parsedImportBooks=[]; document.getElementById('csvFileInput').value='';
     renderTracker(); renderLanding();
-  },1200);
+  },1500);
 }
 
 // ════════════════════════════════════
