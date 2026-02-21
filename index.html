@@ -535,12 +535,12 @@ function loadAll(){
     books=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_BOOKS));
     yearGoal=parseInt(localStorage.getItem('bv_goal')||'12');
     readerName=localStorage.getItem('bv_name')||'Reader';
-    // Reset any stored Google "image not available" placeholder URLs so they get re-fetched.
-    // These are googleapis.com URLs at exactly 128×196 — we can't check dimensions at load time,
-    // but we CAN detect the URL pattern Google uses for its no-image placeholder.
+    // Purge ALL googleapis.com cover URLs — Google's "image not available"
+    // placeholder passes through as a real image so we can't trust any of them.
+    // Reset to null so fetchMissingCovers will retry via Open Library instead.
     let dirty=false;
     books.forEach(b=>{
-      if(b.coverUrl&&b.coverUrl.includes('googleapis.com')&&b.coverUrl.includes('zoom=1')&&!b.coverUrl.includes('zoom=2')){
+      if(b.coverUrl&&b.coverUrl.includes('googleapis.com')){
         b.coverUrl=null; dirty=true;
       }
     });
@@ -553,8 +553,29 @@ let selRating=4,selStatus='read',editingId=null,shareBookId=null,pendingCoverUrl
 let parsedImportBooks=[],searchDebounce=null;
 
 // ════════════════════════════════════
-//  OPEN LIBRARY API
+//  IMAGE PROBE — validate before storing
+//  Returns true if the URL is a real cover (not a placeholder / error image).
+//  Google Books "image not available" = 128×196px
+//  Open Library missing cover = 1×1px
 // ════════════════════════════════════
+function probeImg(url){
+  return new Promise(resolve=>{
+    const img=new Image();
+    const done=()=>{
+      const w=img.naturalWidth, h=img.naturalHeight;
+      if(w<10) return resolve(false);                      // OL 1×1 GIF
+      if(w===128&&h===196) return resolve(false);          // Google placeholder exact size
+      if(w<=130&&h<=200&&url.includes('googleapis')) return resolve(false); // any tiny Google img
+      resolve(true);
+    };
+    img.onload=done;
+    img.onerror=()=>resolve(false);
+    img.src=url;
+    // Safety timeout — if image takes too long, skip it
+    setTimeout(()=>resolve(false),6000);
+  });
+}
+
 // ════════════════════════════════════
 //  BOOK SEARCH — Google Books API (primary, best coverage)
 //  + Open Library for cover fallback
@@ -569,8 +590,9 @@ async function searchBooks(query){
       if(data.items?.length){
         return data.items.map(item=>{
           const info=item.volumeInfo||{};
+          // For search results we show the thumbnail — don't probe here (too slow),
+          // just upgrade to zoom=2 and let the onload handler hide placeholders.
           let coverUrl=info.imageLinks?.thumbnail||info.imageLinks?.smallThumbnail||null;
-          // Google thumbnail URLs sometimes use http — upgrade to https
           if(coverUrl) coverUrl=coverUrl.replace(/^http:/,'https:').replace('zoom=1','zoom=2');
           return{
             title:info.title||'Unknown',
@@ -607,28 +629,26 @@ async function searchBooks(query){
 const searchOpenLibrary=searchBooks;
 
 async function fetchCoverUrl(title,author){
-  // Try Google Books first for cover
+  // ── Strategy: Open Library ONLY for stored covers ──
+  // We skip Google Books for cover storage because it serves a real
+  // "image not available" JPEG that is indistinguishable at fetch time.
+  // Open Library returns a 1×1 GIF for missing covers — easy to reject.
   try{
     const q=encodeURIComponent(`${title} ${author||''}`);
-    const res=await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3&printType=books`,{signal:AbortSignal.timeout(6000)});
+    const res=await fetch(`https://openlibrary.org/search.json?q=${q}&limit=8&fields=isbn,cover_edition_key,cover_i`,{signal:AbortSignal.timeout(8000)});
     if(res.ok){
       const data=await res.json();
-      for(const item of data.items||[]){
-        const url=item.volumeInfo?.imageLinks?.thumbnail;
-        if(url) return url.replace(/^http:/,'https:').replace('zoom=1','zoom=2');
-      }
-    }
-  }catch(e){}
-  // Fallback to Open Library
-  try{
-    const q=encodeURIComponent(`${title} ${author||''}`);
-    const res=await fetch(`https://openlibrary.org/search.json?q=${q}&limit=5&fields=isbn,cover_edition_key,cover_i`,{signal:AbortSignal.timeout(7000)});
-    if(res.ok){
-      const data=await res.json();
+      const candidates=[];
       for(const doc of data.docs||[]){
-        if(doc.cover_edition_key) return `https://covers.openlibrary.org/b/olid/${doc.cover_edition_key}-L.jpg`;
-        if(doc.cover_i) return `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
-        if(doc.isbn?.[0]) return `https://covers.openlibrary.org/b/isbn/${doc.isbn[0]}-L.jpg`;
+        if(doc.cover_edition_key) candidates.push(`https://covers.openlibrary.org/b/olid/${doc.cover_edition_key}-L.jpg`);
+        else if(doc.cover_i) candidates.push(`https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`);
+        else if(doc.isbn?.[0]) candidates.push(`https://covers.openlibrary.org/b/isbn/${doc.isbn[0]}-L.jpg`);
+        if(candidates.length>=4) break;
+      }
+      // Probe each candidate — return the first real one
+      for(const url of candidates){
+        const ok=await probeImg(url);
+        if(ok) return url;
       }
     }
   }catch(e){}
@@ -1413,7 +1433,7 @@ async function getAIInsight(){
     const list=books.filter(b=>b.status==='read').map(b=>`"${b.title}" by ${b.author} (${b.genre}, ${b.rating}/5)`).join(', ');
     const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',
-        content:`Based on my reading list: ${list}. In 2-3 sentences give a sophisticated literary insight about my reading taste, then recommend one specific book I'd love. Be like an erudite literary critic — specific, insightful, not generic.`}]})});
+        content:`Based on my reading list: ${list}. In 2-3 sentences, give a sophisticated literary insight into my reading taste, then recommend one specific book I'd love. Be like an erudite literary critic — specific, insightful, not generic.`}]})});
     const d=await r.json();
     res.innerHTML=d.content[0].text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
   }catch(e){
