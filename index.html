@@ -65,7 +65,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
 .sdrop-item img{width:28px;height:42px;object-fit:cover;border-radius:2px;flex-shrink:0;background:var(--bg3);}
 .sdrop-info strong{font-size:12px;display:block;font-family:'Playfair Display',serif;}
 .sdrop-info span{font-size:10px;color:var(--muted);}
-.sdrop-loading{padding:12px;text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;}
+.search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;padding:2px;display:none;transition:color 0.15s;}
+.search-clear:hover{color:var(--text);}
+.search-wrap input{padding-right:30px;}
+.empty-state-filter{padding:32px 48px;grid-column:1/-1;text-align:center;}
+.empty-state-filter p{font-family:'Playfair Display',serif;font-size:16px;color:var(--muted);font-style:italic;margin-bottom:10px;}
+.empty-state-filter button{background:none;border:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:7px 16px;cursor:pointer;border-radius:2px;transition:all 0.15s;}
+.empty-state-filter button:hover{border-color:var(--accent);color:var(--accent);}
 .sort-sel{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:6px 10px;font-family:'DM Mono',monospace;font-size:11px;border-radius:2px;outline:none;cursor:pointer;}
 .add-book-btn{margin-left:auto;background:var(--accent);color:#0a0a0f;border:none;padding:8px 18px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;white-space:nowrap;border-radius:2px;}
 .add-book-btn:hover{background:#e0bf80;}
@@ -319,7 +325,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
     <div class="toolbar">
       <div class="search-wrap">
         <span class="search-icon">⌕</span>
-        <input type="text" id="searchInput" placeholder="Search or add any book…" oninput="handleLibrarySearch()" autocomplete="off"/>
+        <input type="text" id="searchInput" placeholder="Search your library or find a new book…" oninput="handleLibrarySearch()" autocomplete="off"/>
+        <button class="search-clear" id="searchClear" onclick="clearLibrarySearch()" title="Clear search">✕</button>
         <div class="search-dropdown" id="searchDropdown"></div>
       </div>
       <select class="sort-sel" id="sortSel" onchange="renderTracker()">
@@ -888,7 +895,7 @@ function renderTracker(){
     if(sortBy==='date') return (b.dateRead||'').localeCompare(a.dateRead||'');
     return b.id-a.id;
   });
-  document.getElementById('libCount').textContent=`${filtered.length} book${filtered.length!==1?'s':''}`;
+  document.getElementById('libCount').textContent=`${filtered.length} book${filtered.length!==1?'s':''}${search?' (filtered)':''}`;
   document.getElementById('bookGrid').innerHTML=filtered.length?filtered.map(b=>{
     const dateLabel=b.dateRead?fmtDate(b.dateRead):'No date';
     const dateColor=b.dateRead&&b.dateRead.startsWith(String(CY))?'color:var(--accent)':'';
@@ -910,7 +917,14 @@ function renderTracker(){
           <button class="mc-btn danger" onclick="removeBook(${b.id})">Remove</button>
         </div>
       </div>
-    </div>`}).join(''):`<div class="empty-state">No books found.</div>`;
+    </div>`}).join('')
+    : search
+      ? `<div class="empty-state-filter">
+          <p>No books in your library matching "<em>${search}</em>"</p>
+          <button onclick="clearLibrarySearch()">✕ Clear filter — show all books</button>
+          <p style="margin-top:12px;font-size:12px;">↑ Pick a result from the search dropdown above to add it to your library</p>
+        </div>`
+      : `<div class="empty-state">Your library is empty — add your first book!</div>`;
 }
 
 function removeBook(id){if(confirm('Remove this book?')){books=books.filter(b=>b.id!==id);saveAll();renderTracker();}}
@@ -1059,8 +1073,11 @@ function clearLibrary(){
 //  LIVE LIBRARY SEARCH
 // ════════════════════════════════════
 function handleLibrarySearch(){
-  renderTracker();
   const q=(document.getElementById('searchInput').value||'').trim();
+  // Show/hide clear button
+  const clrBtn=document.getElementById('searchClear');
+  if(clrBtn) clrBtn.style.display=q?'block':'none';
+  renderTracker();
   const dropdown=document.getElementById('searchDropdown');
   if(q.length<2){dropdown.classList.remove('open');return;}
   clearTimeout(searchDebounce);
@@ -1077,11 +1094,23 @@ function handleLibrarySearch(){
     dropdown._results=results;
   },500);
 }
+
+function clearLibrarySearch(){
+  document.getElementById('searchInput').value='';
+  const clrBtn=document.getElementById('searchClear');
+  if(clrBtn) clrBtn.style.display='none';
+  document.getElementById('searchDropdown').classList.remove('open');
+  renderTracker();
+  document.getElementById('searchInput').focus();
+}
 function addFromSearch(idx){
   const dropdown=document.getElementById('searchDropdown');
   const r=dropdown._results?.[idx]; if(!r) return;
   dropdown.classList.remove('open');
+  // Clear the search so the library isn't filtered after adding
   document.getElementById('searchInput').value='';
+  const clrBtn=document.getElementById('searchClear');
+  if(clrBtn) clrBtn.style.display='none';
   openModal('add');
   setTimeout(()=>{
     document.getElementById('fTitle').value=r.title;
