@@ -70,16 +70,51 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
 .add-book-btn{margin-left:auto;background:var(--accent);color:#0a0a0f;border:none;padding:8px 18px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;white-space:nowrap;border-radius:2px;}
 .add-book-btn:hover{background:#e0bf80;}
 
-/* Streak bar */
-.streak-bar{padding:10px 32px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
-.streak-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
-.streak-item strong{color:var(--text);font-size:14px;}
-.goal-bar-wrap{flex:1;min-width:180px;max-width:280px;}
-.goal-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between;}
-.goal-bar{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;}
-.goal-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width 0.6s ease;}
-.change-goal-btn{margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);cursor:pointer;letter-spacing:1px;background:none;border:none;}
-.change-goal-btn:hover{color:var(--accent);}
+/* ── YEARLY CHALLENGE PANEL ── */
+.challenge-panel{background:var(--bg2);border-bottom:1px solid var(--border);padding:22px 32px 18px;}
+.challenge-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+.challenge-count{display:flex;align-items:baseline;gap:6px;}
+.challenge-num{font-family:'Playfair Display',serif;font-size:48px;font-weight:900;line-height:1;color:var(--accent);}
+.challenge-denom{font-family:'Playfair Display',serif;font-size:24px;color:var(--muted);}
+.challenge-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+.challenge-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.pace-badge{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:20px;white-space:nowrap;}
+.pace-badge.ahead{background:rgba(78,201,148,0.12);border:1px solid rgba(78,201,148,0.3);color:var(--green);}
+.pace-badge.behind{background:rgba(224,92,92,0.12);border:1px solid rgba(224,92,92,0.3);color:var(--red);}
+.pace-badge.on-track{background:rgba(200,169,110,0.12);border:1px solid rgba(200,169,110,0.3);color:var(--accent);}
+.challenge-goal-btn{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);cursor:pointer;background:none;border:none;letter-spacing:1px;}
+.challenge-goal-btn:hover{color:var(--accent);}
+
+/* Book spine slots */
+.spine-track{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;}
+.spine-slot{width:18px;height:52px;border-radius:2px;flex-shrink:0;transition:transform 0.15s;position:relative;cursor:default;}
+.spine-slot.filled{box-shadow:0 2px 8px rgba(0,0,0,0.4);}
+.spine-slot.filled:hover{transform:translateY(-3px) scale(1.08);}
+.spine-slot.empty{background:var(--bg3);border:1px solid var(--border);}
+.spine-slot .spine-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);padding:5px 8px;border-radius:3px;font-size:10px;font-family:'DM Sans',sans-serif;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:20;max-width:160px;overflow:hidden;text-overflow:ellipsis;}
+.spine-slot.filled:hover .spine-tip{opacity:1;}
+
+/* Progress bar */
+.challenge-bar-wrap{margin-bottom:14px;}
+.challenge-bar-labels{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:5px;}
+.challenge-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;position:relative;}
+.challenge-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width 0.8s ease;}
+.challenge-bar-pace{position:absolute;top:-3px;width:2px;height:12px;background:rgba(255,255,255,0.4);border-radius:1px;transition:left 0.4s;}
+
+/* Month heatmap */
+.month-row{display:flex;gap:3px;align-items:flex-end;}
+.month-cell{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
+.month-bar{width:100%;border-radius:2px 2px 0 0;min-height:3px;transition:height 0.4s ease;background:linear-gradient(180deg,var(--accent2),var(--accent));}
+.month-lbl{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:0.5px;}
+.month-cnt{font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);display:none;}
+.month-cell:hover .month-cnt{display:block;}
+.month-cell:hover .month-lbl{display:none;}
+
+/* Date on library cards */
+.mc-date{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:4px;}
+.mc-date-edit{cursor:pointer;opacity:0.5;transition:opacity 0.15s;font-size:10px;}
+.mc-date-edit:hover{opacity:1;color:var(--accent);}
+.mc-date-input{background:var(--bg3);border:1px solid var(--accent);color:var(--text);padding:2px 5px;font-family:'DM Mono',monospace;font-size:9px;border-radius:2px;width:110px;outline:none;}
 
 /* AI strip */
 .ai-strip{margin:20px 32px;border:1px solid var(--border);background:var(--bg2);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
@@ -280,7 +315,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
 
   <!-- LIBRARY VIEW -->
   <div id="libraryView">
-    <div class="streak-bar" id="streakBar"></div>
+    <div class="challenge-panel" id="challengePanel"></div>
     <div class="toolbar">
       <div class="search-wrap">
         <span class="search-icon">⌕</span>
@@ -288,7 +323,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
         <div class="search-dropdown" id="searchDropdown"></div>
       </div>
       <select class="sort-sel" id="sortSel" onchange="renderTracker()">
-        <option value="newest">Newest</option>
+        <option value="newest">Newest Added</option>
+        <option value="date">Date Read</option>
         <option value="rating">Top Rated</option>
         <option value="pages">Most Pages</option>
         <option value="alpha">A → Z</option>
@@ -389,6 +425,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
       </div>
     </div>
     <div class="fg" id="currentPageFg" style="display:none;"><label>Current Page</label><input id="fCurrentPage" type="number" placeholder="0"/></div>
+    <div class="fg" id="dateReadFg"><label>Date Read</label><input id="fDateRead" type="date"/></div>
     <div class="fg"><label>Rating</label><div class="m-stars" id="mStars"></div></div>
     <div class="modal-actions">
       <button class="mbtn mbtn-primary" onclick="saveBook()">Save Book</button>
@@ -450,11 +487,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
 // ════════════════════════════════════
 const FALLBACK_COLORS=["#c8a96e","#7c6af5","#e05c5c","#4ec994","#74b9ff","#fd79a8","#fdcb6e","#a29bfe","#e17055","#55efc4"];
 const DEFAULT_BOOKS=[
-  {id:1,title:"The Hobbit",author:"J.R.R. Tolkien",color:"#c8a96e",pages:310,currentPage:310,genre:"Fantasy",rating:5,status:"read",coverUrl:"https://covers.openlibrary.org/b/isbn/9780547928227-L.jpg"},
-  {id:2,title:"Dune",author:"Frank Herbert",color:"#7c6af5",pages:412,currentPage:412,genre:"Sci-Fi",rating:5,status:"read",coverUrl:"https://covers.openlibrary.org/b/isbn/9780441013593-L.jpg"},
-  {id:3,title:"1984",author:"George Orwell",color:"#e05c5c",pages:328,currentPage:328,genre:"Dystopia",rating:5,status:"read",coverUrl:"https://covers.openlibrary.org/b/isbn/9780451524935-L.jpg"},
-  {id:4,title:"Little Women",author:"Louisa May Alcott",color:"#4ec994",pages:449,currentPage:449,genre:"Classic",rating:4,status:"read",coverUrl:"https://covers.openlibrary.org/b/isbn/9780147514011-L.jpg"},
-  {id:5,title:"Atomic Habits",author:"James Clear",color:"#fd79a8",pages:319,currentPage:180,genre:"Self-Help",rating:4,status:"reading",coverUrl:"https://covers.openlibrary.org/b/isbn/9780735211292-L.jpg"},
+  {id:1,title:"The Hobbit",author:"J.R.R. Tolkien",color:"#c8a96e",pages:310,currentPage:310,genre:"Fantasy",rating:5,status:"read",dateRead:"2026-01-14",coverUrl:"https://covers.openlibrary.org/b/isbn/9780547928227-L.jpg"},
+  {id:2,title:"Dune",author:"Frank Herbert",color:"#7c6af5",pages:412,currentPage:412,genre:"Sci-Fi",rating:5,status:"read",dateRead:"2026-02-03",coverUrl:"https://covers.openlibrary.org/b/isbn/9780441013593-L.jpg"},
+  {id:3,title:"1984",author:"George Orwell",color:"#e05c5c",pages:328,currentPage:328,genre:"Dystopia",rating:5,status:"read",dateRead:"2026-02-18",coverUrl:"https://covers.openlibrary.org/b/isbn/9780451524935-L.jpg"},
+  {id:4,title:"Little Women",author:"Louisa May Alcott",color:"#4ec994",pages:449,currentPage:449,genre:"Classic",rating:4,status:"read",dateRead:"2025-11-22",coverUrl:"https://covers.openlibrary.org/b/isbn/9780147514011-L.jpg"},
+  {id:5,title:"Atomic Habits",author:"James Clear",color:"#fd79a8",pages:319,currentPage:180,genre:"Self-Help",rating:4,status:"reading",dateRead:null,coverUrl:"https://covers.openlibrary.org/b/isbn/9780735211292-L.jpg"},
 ];
 
 let books=[];
@@ -538,6 +575,10 @@ function totalPages(){return books.filter(b=>b.status==='read').reduce((a,b)=>a+
 function avgRating(){const r=books.filter(b=>b.status==='read');return r.length?(r.reduce((a,b)=>a+b.rating,0)/r.length).toFixed(1):'–';}
 function starsHtml(v,sz=12){return[1,2,3,4,5].map(s=>`<span style="color:${s<=v?'#c8a96e':'#2a2a38'};font-size:${sz}px">★</span>`).join('');}
 function uid(){return Date.now()+Math.floor(Math.random()*9999);}
+const CY=new Date().getFullYear();
+function yearlyBooks(){return books.filter(b=>b.status==='read'&&b.dateRead&&b.dateRead.startsWith(String(CY)));}
+function fmtDate(iso){if(!iso)return null;const d=new Date(iso+'T00:00:00');return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+function todayISO(){return new Date().toISOString().slice(0,10);}
 
 // ════════════════════════════════════
 //  PAGE TURN SOUND
@@ -652,26 +693,101 @@ function switchTab(tab){
 }
 
 // ════════════════════════════════════
+//  YEARLY CHALLENGE PANEL
+// ════════════════════════════════════
+function renderChallenge(){
+  const yBooks=yearlyBooks();
+  const done=yBooks.length;
+  const pct=Math.min(100,Math.round((done/yearGoal)*100));
+
+  // Pace: how many books should we have read by now?
+  const now=new Date();
+  const dayOfYear=Math.floor((now-new Date(CY,0,1))/86400000)+1;
+  const daysInYear=((CY%4===0&&CY%100!==0)||CY%400===0)?366:365;
+  const expectedByNow=(yearGoal*dayOfYear/daysInYear);
+  const diff=done-expectedByNow;
+  let paceLabel,paceClass;
+  if(diff>0.75){paceLabel=`${Math.ceil(diff)} book${Math.ceil(diff)>1?'s':''} ahead`;paceClass='ahead';}
+  else if(diff<-0.75){paceLabel=`${Math.ceil(Math.abs(diff))} book${Math.ceil(Math.abs(diff))>1?'s':''} behind`;paceClass='behind';}
+  else{paceLabel='On pace';paceClass='on-track';}
+
+  // Spine slots
+  const maxSlots=Math.max(yearGoal,done);
+  const colors=["#c8a96e","#7c6af5","#4ec994","#e05c5c","#74b9ff","#fd79a8","#fdcb6e","#a29bfe","#e17055","#55efc4"];
+  const sortedY=[...yBooks].sort((a,b)=>a.dateRead.localeCompare(b.dateRead));
+  const spines=Array.from({length:maxSlots},(_, i)=>{
+    const b=sortedY[i];
+    if(b){
+      const c=b.color||colors[i%colors.length];
+      return`<div class="spine-slot filled" style="background:linear-gradient(180deg,${c}ee,${c}88);">
+        <div class="spine-tip">${b.title}</div>
+      </div>`;
+    }
+    return`<div class="spine-slot empty"></div>`;
+  }).join('');
+
+  // Month heatmap
+  const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthlyCounts=Array(12).fill(0);
+  yBooks.forEach(b=>{const m=new Date(b.dateRead+'T00:00:00').getMonth();monthlyCounts[m]++;});
+  const maxM=Math.max(...monthlyCounts,1);
+  const curMonth=now.getMonth();
+  const monthBars=monthNames.map((m,i)=>{
+    const h=Math.max(4,Math.round((monthlyCounts[i]/maxM)*36));
+    const isActive=i===curMonth;
+    const style=monthlyCounts[i]>0?`height:${h}px;opacity:${isActive?1:0.7}`:`height:3px;background:var(--bg3);opacity:0.4`;
+    const barStyle=monthlyCounts[i]>0?`style="${style}"`:`style="${style}"`;
+    return`<div class="month-cell">
+      <div class="month-bar" ${barStyle}></div>
+      <div class="month-cnt">${monthlyCounts[i]}</div>
+      <div class="month-lbl" style="color:${isActive?'var(--accent)':''};">${m}</div>
+    </div>`;
+  }).join('');
+
+  // Pace line position on bar
+  const pacePct=Math.min(100,Math.round((expectedByNow/yearGoal)*100));
+
+  document.getElementById('challengePanel').innerHTML=`
+    <div class="challenge-top">
+      <div>
+        <div class="challenge-count">
+          <span class="challenge-num">${done}</span>
+          <span class="challenge-denom">/ ${yearGoal}</span>
+        </div>
+        <div class="challenge-label">${CY} Reading Challenge · ${done===0?'Get started!':done===yearGoal?'Goal reached! 🎉':`${yearGoal-done} to go`}</div>
+      </div>
+      <div class="challenge-right">
+        <span class="pace-badge ${paceClass}">${paceLabel}</span>
+        <button class="challenge-goal-btn" onclick="changeGoal()">⚙ Change goal</button>
+      </div>
+    </div>
+    <div class="spine-track">${spines}</div>
+    <div class="challenge-bar-wrap">
+      <div class="challenge-bar-labels">
+        <span>0</span><span>${Math.round(yearGoal/4)}</span><span>${Math.round(yearGoal/2)}</span><span>${Math.round(yearGoal*3/4)}</span><span>${yearGoal}</span>
+      </div>
+      <div class="challenge-bar">
+        <div class="challenge-bar-fill" style="width:${pct}%"></div>
+        <div class="challenge-bar-pace" style="left:${pacePct}%" title="Expected by today"></div>
+      </div>
+    </div>
+    <div class="month-row">${monthBars}</div>`;
+}
+
+// ════════════════════════════════════
 //  TRACKER RENDER
 // ════════════════════════════════════
 function renderTracker(){
   const search=(document.getElementById('searchInput')?.value||'').toLowerCase();
   const sortBy=document.getElementById('sortSel')?.value||'newest';
 
+  const yDone=yearlyBooks().length;
   document.getElementById('tStats').innerHTML=`
-    <div class="tstat">Read: <span>${readCount()}</span></div>
+    <div class="tstat">All time: <span>${readCount()} read</span></div>
     <div class="tstat">Pages: <span>${totalPages().toLocaleString()}</span></div>
-    <div class="tstat">Avg: <span>${avgRating()}★</span></div>`;
+    <div class="tstat">${CY}: <span>${yDone} / ${yearGoal}</span></div>`;
 
-  const pct=Math.min(100,Math.round((readCount()/yearGoal)*100));
-  document.getElementById('streakBar').innerHTML=`
-    <div class="streak-item">📖 <strong>${readCount()} / ${yearGoal}</strong> yearly goal</div>
-    <div class="goal-bar-wrap">
-      <div class="goal-label"><span>Progress ${new Date().getFullYear()}</span><span>${pct}%</span></div>
-      <div class="goal-bar"><div class="goal-fill" style="width:${pct}%"></div></div>
-    </div>
-    <div class="streak-item">▶ <strong>${books.filter(b=>b.status==='reading').length}</strong> in progress</div>
-    <button class="change-goal-btn" onclick="changeGoal()">⚙ Goal</button>`;
+  renderChallenge();
 
   // Currently reading
   const crBooks=books.filter(b=>b.status==='reading');
@@ -705,11 +821,14 @@ function renderTracker(){
     if(sortBy==='rating') return b.rating-a.rating;
     if(sortBy==='pages') return b.pages-a.pages;
     if(sortBy==='alpha') return a.title.localeCompare(b.title);
+    if(sortBy==='date') return (b.dateRead||'').localeCompare(a.dateRead||'');
     return b.id-a.id;
   });
   document.getElementById('libCount').textContent=`${filtered.length} book${filtered.length!==1?'s':''}`;
-  document.getElementById('bookGrid').innerHTML=filtered.length?filtered.map(b=>`
-    <div class="mag-card">
+  document.getElementById('bookGrid').innerHTML=filtered.length?filtered.map(b=>{
+    const dateLabel=b.dateRead?fmtDate(b.dateRead):'No date';
+    const dateColor=b.dateRead&&b.dateRead.startsWith(String(CY))?'color:var(--accent)':'';
+    return`<div class="mag-card">
       <div class="mc-cover-wrap" style="background:linear-gradient(160deg,${b.color}40,${b.color}15);">
         ${makeCoverImg(b.coverUrl,b.color,b.title,'mc-cover-img','mc-cover-fallback','')}
       </div>
@@ -717,12 +836,16 @@ function renderTracker(){
         <div class="mc-title">${b.title}</div>
         <div class="mc-author">by ${b.author}</div>
         <div class="mc-stars">${starsHtml(b.rating)}</div>
+        <div class="mc-date" id="date-display-${b.id}">
+          <span style="${dateColor}">${dateLabel}</span>
+          <span class="mc-date-edit" title="Edit date" onclick="editDateInline(${b.id})">✎</span>
+        </div>
         <div class="mc-actions">
           <button class="mc-btn" onclick="openShare(${b.id})">Share</button>
           <button class="mc-btn danger" onclick="removeBook(${b.id})">Remove</button>
         </div>
       </div>
-    </div>`).join(''):`<div class="empty-state">No books found.</div>`;
+    </div>`}).join(''):`<div class="empty-state">No books found.</div>`;
 }
 
 function removeBook(id){if(confirm('Remove this book?')){books=books.filter(b=>b.id!==id);saveAll();renderTracker();}}
@@ -731,8 +854,32 @@ function updateProgress(id){
   const book=books.find(b=>b.id===id);
   if(book&&!isNaN(val)&&val>=0){book.currentPage=Math.min(val,book.pages||val);saveAll();renderTracker();}
 }
-function markRead(id){const b=books.find(x=>x.id===id);if(b){b.status='read';b.currentPage=b.pages;saveAll();renderTracker();}}
-function changeGoal(){const v=prompt('Set your yearly reading goal:',yearGoal);if(v&&!isNaN(v)&&parseInt(v)>0){yearGoal=parseInt(v);saveAll();renderTracker();}}
+function markRead(id){
+  const b=books.find(x=>x.id===id);
+  if(b){b.status='read';b.currentPage=b.pages;b.dateRead=b.dateRead||todayISO();saveAll();renderTracker();}
+}
+function changeGoal(){
+  const v=prompt(`Set your ${CY} reading goal:`,yearGoal);
+  if(v&&!isNaN(v)&&parseInt(v)>0){yearGoal=parseInt(v);saveAll();renderTracker();}
+}
+
+// Inline date editing on library cards
+function editDateInline(id){
+  const b=books.find(x=>x.id===id); if(!b) return;
+  const wrap=document.getElementById(`date-display-${id}`);
+  if(!wrap) return;
+  wrap.innerHTML=`<input class="mc-date-input" type="date" value="${b.dateRead||todayISO()}" 
+    onblur="saveInlineDate(${id},this.value)" 
+    onkeydown="if(event.key==='Enter')this.blur();if(event.key==='Escape'){renderTracker();}" 
+    autofocus/>`;
+  wrap.querySelector('input').focus();
+}
+function saveInlineDate(id,val){
+  const b=books.find(x=>x.id===id); if(!b) return;
+  b.dateRead=val||null;
+  saveAll();
+  renderTracker();
+}
 
 // ════════════════════════════════════
 //  PROFILE
@@ -877,6 +1024,7 @@ function openModal(mode,id=null){
   editingId=id; selRating=4; selStatus='read'; pendingCoverUrl=null; modalSearchResults=[];
   ['fTitle','fAuthor','fPages','fCurrentPage'].forEach(f=>document.getElementById(f).value='');
   document.getElementById('fGenre').value='Fantasy';
+  document.getElementById('fDateRead').value=todayISO();
   document.getElementById('coverPreview').innerHTML='<span style="padding:4px;font-size:9px;text-align:center;">No cover</span>';
   document.getElementById('modalSearchDropdown').classList.remove('open');
   document.getElementById('modalTitle').textContent='Add a Book';
@@ -889,6 +1037,7 @@ function openModal(mode,id=null){
       document.getElementById('fPages').value=b.pages;
       document.getElementById('fCurrentPage').value=b.currentPage||0;
       document.getElementById('fGenre').value=b.genre;
+      document.getElementById('fDateRead').value=b.dateRead||todayISO();
       document.getElementById('modalTitle').textContent='Edit Book';
       if(b.coverUrl){pendingCoverUrl=b.coverUrl;document.getElementById('coverPreview').innerHTML=`<img src="${b.coverUrl}" style="width:100%;height:100%;object-fit:cover;"/>`;}
     }
@@ -902,6 +1051,7 @@ function setStatus(s){
   document.getElementById('statusRead').classList.toggle('sel',s==='read');
   document.getElementById('statusReading').classList.toggle('sel',s==='reading');
   document.getElementById('currentPageFg').style.display=s==='reading'?'block':'none';
+  document.getElementById('dateReadFg').style.display=s==='read'?'block':'none';
 }
 function renderModalStars(){
   document.getElementById('mStars').innerHTML=[1,2,3,4,5].map(s=>
@@ -952,14 +1102,15 @@ async function saveBook(){
   if(!author){alert('Please enter the author name.');document.getElementById('fAuthor').focus();return;}
   const finalPages=(!pagesRaw||isNaN(pages)||pages<=0)?0:pages;
   const currentPage=selStatus==='reading'?parseInt(document.getElementById('fCurrentPage').value)||0:finalPages;
+  const dateRead=selStatus==='read'?(document.getElementById('fDateRead').value||todayISO()):null;
   let coverUrl=pendingCoverUrl;
   if(!coverUrl) coverUrl=await fetchCoverUrl(title,author);
   const color=FALLBACK_COLORS[books.length%FALLBACK_COLORS.length];
   if(editingId){
     const i=books.findIndex(b=>b.id===editingId);
-    if(i>-1) books[i]={...books[i],title,author,pages:finalPages,currentPage,genre,rating:selRating,status:selStatus,coverUrl:coverUrl||books[i].coverUrl};
+    if(i>-1) books[i]={...books[i],title,author,pages:finalPages,currentPage,genre,rating:selRating,status:selStatus,dateRead:dateRead!==undefined?dateRead:books[i].dateRead,coverUrl:coverUrl||books[i].coverUrl};
   } else {
-    books.push({id:uid(),title,author,pages:finalPages,currentPage,genre,rating:selRating,status:selStatus,color,coverUrl:coverUrl||null});
+    books.push({id:uid(),title,author,pages:finalPages,currentPage,genre,rating:selRating,status:selStatus,dateRead,color,coverUrl:coverUrl||null});
   }
   saveAll();
   document.getElementById('addModal').style.display='none';
@@ -1066,8 +1217,9 @@ async function importSelected(){
       title:b.title, author:b.author, pages:b.pages,
       currentPage:b.currentPage, genre:'Fiction',
       rating:b.rating, status:b.status,
+      dateRead:b.status==='read'?todayISO():null,
       color:FALLBACK_COLORS[(books.length)%FALLBACK_COLORS.length],
-      coverUrl:b.coverUrl||null   // use whatever cover was fetched, even if null
+      coverUrl:b.coverUrl||null
     });
     added++;
   }
