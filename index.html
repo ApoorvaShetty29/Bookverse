@@ -859,6 +859,8 @@ function renderTracker(){
     <div class="tstat">${CY}: <span>${yDone} / ${yearGoal}</span></div>`;
 
   renderChallenge();
+  // Fire background cover fetch — fills in missing covers without blocking render
+  setTimeout(fetchMissingCovers, 200);
 
   // Currently reading
   const crBooks=books.filter(b=>b.status==='reading');
@@ -900,7 +902,7 @@ function renderTracker(){
     const dateLabel=b.dateRead?fmtDate(b.dateRead):'No date';
     const dateColor=b.dateRead&&b.dateRead.startsWith(String(CY))?'color:var(--accent)':'';
     return`<div class="mag-card">
-      <div class="mc-cover-wrap" style="background:linear-gradient(160deg,${b.color}40,${b.color}15);">
+      <div class="mc-cover-wrap" id="cover-wrap-${b.id}" style="background:linear-gradient(160deg,${b.color}40,${b.color}15);">
         ${makeCoverImg(b.coverUrl,b.color,b.title,'mc-cover-img','mc-cover-fallback','')}
       </div>
       <div class="mc-info">
@@ -925,6 +927,41 @@ function renderTracker(){
           <p style="margin-top:12px;font-size:12px;">↑ Pick a result from the search dropdown above to add it to your library</p>
         </div>`
       : `<div class="empty-state">Your library is empty — add your first book!</div>`;
+}
+
+// ════════════════════════════════════
+//  BACKGROUND COVER FETCHER
+//  Runs silently after render. Fetches covers for any book that has
+//  coverUrl===null (never tried). Marks failures as 'none' so we
+//  don't retry every render. Updates DOM directly — no re-render flash.
+// ════════════════════════════════════
+const _coverFetching=new Set(); // guard: don't double-fetch same id
+
+async function fetchMissingCovers(){
+  // Only books with no cover that we haven't already tried this session
+  const missing=books.filter(b=>b.coverUrl===null&&!_coverFetching.has(b.id));
+  if(!missing.length) return;
+
+  // Process in batches of 6 with a short gap to avoid hammering APIs
+  const BATCH=6, DELAY=500;
+  for(let i=0;i<missing.length;i+=BATCH){
+    const batch=missing.slice(i,i+BATCH);
+    await Promise.all(batch.map(async b=>{
+      _coverFetching.add(b.id);
+      const url=await fetchCoverUrl(b.title,b.author);
+      // Store result — empty string means "tried, nothing found"
+      b.coverUrl=url||'';
+      saveAll();
+      // Update the card's cover-wrap in the DOM directly
+      const wrap=document.getElementById(`cover-wrap-${b.id}`);
+      if(!wrap) return;
+      if(url){
+        wrap.innerHTML=makeCoverImg(url,b.color,b.title,'mc-cover-img','mc-cover-fallback','');
+      }
+      // If no cover found, the existing coloured fallback stays — nothing to do
+    }));
+    if(i+BATCH<missing.length) await new Promise(r=>setTimeout(r,DELAY));
+  }
 }
 
 function removeBook(id){if(confirm('Remove this book?')){books=books.filter(b=>b.id!==id);saveAll();renderTracker();}}
