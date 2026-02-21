@@ -535,6 +535,16 @@ function loadAll(){
     books=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_BOOKS));
     yearGoal=parseInt(localStorage.getItem('bv_goal')||'12');
     readerName=localStorage.getItem('bv_name')||'Reader';
+    // Reset any stored Google "image not available" placeholder URLs so they get re-fetched.
+    // These are googleapis.com URLs at exactly 128×196 — we can't check dimensions at load time,
+    // but we CAN detect the URL pattern Google uses for its no-image placeholder.
+    let dirty=false;
+    books.forEach(b=>{
+      if(b.coverUrl&&b.coverUrl.includes('googleapis.com')&&b.coverUrl.includes('zoom=1')&&!b.coverUrl.includes('zoom=2')){
+        b.coverUrl=null; dirty=true;
+      }
+    });
+    if(dirty) saveAll();
   }catch(e){books=JSON.parse(JSON.stringify(DEFAULT_BOOKS));}
 }
 loadAll();
@@ -627,13 +637,24 @@ async function fetchCoverUrl(title,author){
 
 // ════════════════════════════════════
 //  COVER IMAGE HELPER
-//  Open Library returns a 1×1 transparent GIF for missing covers.
-//  We check naturalWidth on load — if < 10px it's a placeholder.
+//  • Open Library missing cover = 1×1 transparent GIF  → naturalWidth < 10
+//  • Google Books "image not available" = exactly 128×196px → catch that too
 // ════════════════════════════════════
+function isPlaceholderImg(img){
+  // OL 1×1 pixel GIF
+  if(img.naturalWidth<10) return true;
+  // Google Books generic "image not available" placeholder
+  if(img.naturalWidth===128&&img.naturalHeight===196) return true;
+  // Also catch slightly-different Google sizes (64×98, 80×120 etc.)
+  const ratio=img.naturalHeight/img.naturalWidth;
+  if(img.naturalWidth<=128&&Math.abs(ratio-1.53)<0.05&&img.src.includes('googleapis')) return true;
+  return false;
+}
+
 function makeCoverImg(coverUrl,color,title,cssClass,fallbackClass,fallbackStyle){
   if(!coverUrl) return `<div class="${fallbackClass}" style="background:linear-gradient(160deg,${color}60,${color}20);${fallbackStyle||''}">${title}</div>`;
   return `<img class="${cssClass}" src="${coverUrl}"
-    onload="if(this.naturalWidth<10){this.style.display='none';this.nextElementSibling.style.display='flex';}"
+    onload="if(isPlaceholderImg(this)){this.style.display='none';this.nextElementSibling.style.display='flex';}"
     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
     <div class="${fallbackClass}" style="display:none;background:linear-gradient(160deg,${color}60,${color}20);${fallbackStyle||''}">${title}</div>`;
 }
@@ -698,7 +719,7 @@ function renderLanding(){
       const img=document.createElement('img');
       img.src=b.coverUrl;
       img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
-      img.onload=function(){if(this.naturalWidth<10){this.style.display='none';showFallback(inner,b);}};
+      img.onload=function(){if(isPlaceholderImg(this)){this.style.display='none';showFallback(inner,b);}};
       img.onerror=function(){this.style.display='none';showFallback(inner,b);};
       inner.appendChild(img);
     } else {showFallback(inner,b);}
@@ -869,7 +890,7 @@ function renderTracker(){
     const pct=b.pages?Math.round((b.currentPage/b.pages)*100):0;
     const coverHtml=b.coverUrl
       ?`<img class="cr-cover" src="${b.coverUrl}"
-          onload="if(this.naturalWidth<10){this.style.display='none';this.nextElementSibling.style.display='flex';}"
+          onload="if(isPlaceholderImg(this)){this.style.display='none';this.nextElementSibling.style.display='flex';}"
           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
          <div class="cr-cover-ph" style="display:none;background:${b.color}30">📖</div>`
       :`<div class="cr-cover-ph" style="background:${b.color}30">📖</div>`;
@@ -938,11 +959,10 @@ function renderTracker(){
 const _coverFetching=new Set(); // guard: don't double-fetch same id
 
 async function fetchMissingCovers(){
-  // Only books with no cover that we haven't already tried this session
+  // Books with no cover (null = never tried; '' = tried and genuinely nothing found)
   const missing=books.filter(b=>b.coverUrl===null&&!_coverFetching.has(b.id));
   if(!missing.length) return;
 
-  // Process in batches of 6 with a short gap to avoid hammering APIs
   const BATCH=6, DELAY=500;
   for(let i=0;i<missing.length;i+=BATCH){
     const batch=missing.slice(i,i+BATCH);
@@ -952,13 +972,14 @@ async function fetchMissingCovers(){
       // Store result — empty string means "tried, nothing found"
       b.coverUrl=url||'';
       saveAll();
-      // Update the card's cover-wrap in the DOM directly
+      // Update the card in the DOM directly — no re-render flash
       const wrap=document.getElementById(`cover-wrap-${b.id}`);
       if(!wrap) return;
       if(url){
+        // Inject img; if it resolves to a placeholder the onload handler will hide it
         wrap.innerHTML=makeCoverImg(url,b.color,b.title,'mc-cover-img','mc-cover-fallback','');
       }
-      // If no cover found, the existing coloured fallback stays — nothing to do
+      // No cover found → existing coloured fallback stays, nothing to do
     }));
     if(i+BATCH<missing.length) await new Promise(r=>setTimeout(r,DELAY));
   }
@@ -1125,7 +1146,7 @@ function handleLibrarySearch(){
     if(!results.length){dropdown.innerHTML='<div class="sdrop-loading">No results found</div>';return;}
     dropdown.innerHTML=results.map((r,i)=>`
       <div class="sdrop-item" onclick="addFromSearch(${i})">
-        ${r.coverUrl?`<img src="${r.coverUrl}" onload="if(this.naturalWidth<10)this.style.display='none'" onerror="this.style.display='none'"/>`:''}
+        ${r.coverUrl?`<img src="${r.coverUrl}" onload="if(isPlaceholderImg(this))this.style.display='none'" onerror="this.style.display='none'"/>`:''}
         <div class="sdrop-info"><strong>${r.title}</strong><span>${r.author}${r.pages?' · '+r.pages+' pages':''}</span></div>
       </div>`).join('');
     dropdown._results=results;
@@ -1216,7 +1237,7 @@ function onModalSearchInput(){
     if(!results.length){dropdown.innerHTML='<div class="msdrop-loading">No results found</div>';return;}
     dropdown.innerHTML=results.map((r,i)=>`
       <div class="msdrop-item" onclick="selectModalBook(${i})">
-        ${r.coverUrl?`<img src="${r.coverUrl}" onload="if(this.naturalWidth<10)this.style.display='none'" onerror="this.style.display='none'"/>`:''}
+        ${r.coverUrl?`<img src="${r.coverUrl}" onload="if(isPlaceholderImg(this))this.style.display='none'" onerror="this.style.display='none'"/>`:''}
         <div class="msdrop-info"><strong>${r.title}</strong><span>${r.author}${r.pages?' · '+r.pages+' pages':''}</span></div>
       </div>`).join('');
   },400);
@@ -1266,7 +1287,7 @@ async function saveBook(){
 // ════════════════════════════════════
 function openShare(id){
   shareBookId=id; const b=books.find(x=>x.id===id); if(!b) return;
-  const coverEl=b.coverUrl?`<img class="sp-cover" src="${b.coverUrl}" onload="if(this.naturalWidth<10)this.style.display='none'" onerror="this.style.display='none'"/>`:`<div class="sp-cover-ph">📚</div>`;
+  const coverEl=b.coverUrl?`<img class="sp-cover" src="${b.coverUrl}" onload="if(isPlaceholderImg(this))this.style.display='none'" onerror="this.style.display='none'"/>`:`<div class="sp-cover-ph">📚</div>`;
   document.getElementById('sharePreview').innerHTML=`${coverEl}<div class="sp-details"><div class="sp-title">${b.title}</div><div class="sp-author">by ${b.author}</div><div style="color:#c8a96e;margin-bottom:10px;">${starsHtml(b.rating,14)}</div><div class="sp-quote">A standout ${b.genre.toLowerCase()} — ${b.pages} pages I won't forget.</div></div>`;
   document.getElementById('shareModal').style.display='flex';
 }
@@ -1341,7 +1362,7 @@ function renderImportResults(){
       if(img){
         img.src=url;
         img.style.display='block';
-        img.onload=function(){if(this.naturalWidth<10)this.style.display='none';};
+        img.onload=function(){if(isPlaceholderImg(this))this.style.display='none';};
         img.onerror=function(){this.style.display='none';};
       }
     }
